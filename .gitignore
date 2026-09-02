@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.env
+.venv/
+*.db
+*.db-wal
+*.db-shm
+autotrade_state.json
+autotrade_state.json.tmp
+
