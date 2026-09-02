@@ -351,6 +351,17 @@ def get_ohlcv():
         df = ticker.history(interval=interval, period=period)
         if df.empty:
             return jsonify({'status': 'error', 'message': 'No data'})
+
+        # Yahoo has no native 4-hour interval. Aggregate hourly candles so the
+        # technical and Fibonacci calculations really match the selected 4H frame.
+        if timeframe == '4h':
+            df = df.resample('4h').agg({
+                'Open': 'first',
+                'High': 'max',
+                'Low': 'min',
+                'Close': 'last',
+                'Volume': 'sum'
+            }).dropna(subset=['Open', 'High', 'Low', 'Close'])
             
         candles = []
         for index, row in df.iterrows():

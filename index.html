@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
     <!-- TradingView Core Script -->
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 </head>
@@ -766,6 +766,23 @@
             <div class="modal-body">
                 <!-- Mini TV Chart for the Signal Details -->
                 <div id="modal-tradingview-chart" style="height: 300px; width: 100%; border-radius: 8px; margin-bottom: 1rem; overflow:hidden;"></div>
+
+                <section class="fibonacci-chart-panel" id="modal-fibonacci-panel">
+                    <div class="fibonacci-chart-header">
+                        <div>
+                            <h4><i class="fa-solid fa-wave-square"></i> خريطة فيبوناتشي على الشموع الحقيقية</h4>
+                            <p>آخر موجة مع مستويات الارتداد والمنطقة الذهبية وأهداف الامتداد</p>
+                        </div>
+                        <span class="badge badge-outline" id="modal-fibonacci-status">جارٍ التحليل…</span>
+                    </div>
+                    <div id="modal-fibonacci-chart" class="fibonacci-chart-canvas" aria-live="polite"></div>
+                    <div class="fibonacci-chart-legend">
+                        <span><i class="fib-dot fib-key"></i> المستويات المهمة 38.2%–61.8%</span>
+                        <span><i class="fib-dot fib-zone"></i> المنطقة الذهبية</span>
+                        <span><i class="fib-dot fib-extension"></i> امتدادات الأهداف</span>
+                        <span><i class="fib-dot fib-wave"></i> الموجة المعتمدة</span>
+                    </div>
+                </section>
                 <div class="modal-grid-stats">
                     <div class="modal-stat">
                         <span class="lbl">سعر الدخول الموصى به:</span>
@@ -1543,8 +1560,8 @@
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
     <!-- Market analysis engines -->
-    <script src="fibonacci.js?v=1"></script>
-    <script src="app.js?v=46"></script>
+    <script src="fibonacci.js?v=2"></script>
+    <script src="app.js?v=47"></script>
 
     <!-- AI Assistant Floating Widget -->
     <div id="ai-assistant-widget" class="ai-widget-container">

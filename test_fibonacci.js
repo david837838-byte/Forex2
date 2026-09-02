@@ -61,4 +61,17 @@ const invalid = FibonacciAnalysis.calculateFromAnchors({
 });
 assert.strictEqual(invalid.valid, false);
 
+const candles = Array.from({ length: 30 }, (_, index) => ({
+    time: 1700000000000 + (index * 3600000),
+    open: 102 + (index * 0.1),
+    high: 103 + (index * 0.1),
+    low: 101 + (index * 0.1),
+    close: 102.5 + (index * 0.1)
+}));
+const svg = FibonacciAnalysis.buildChartSvg(candles, bullish, 900, 420);
+assert.ok(svg.includes('data-zone="golden"'));
+assert.ok(svg.includes('data-level="61.8"'));
+assert.ok(svg.includes('data-extension="161.8"'));
+assert.ok(svg.includes('class="fibonacci-svg"'));
+
 console.log('Fibonacci analysis tests passed.');

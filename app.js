@@ -1005,6 +1005,7 @@ Evaluate objectively. Return ONLY valid JSON:
                 decision: chosenDir,
                 timeframe: styleCode,
                 timeframeLabel: styleLabel,
+                analysisTimeframe: tfStr,
                 entry: parseFloat(entry.toFixed(dp)),
                 tp1, tp2, tp3, sl, rr,
                 score: finalScore,
@@ -1531,6 +1532,7 @@ Evaluate objectively. Return ONLY valid JSON:
                                 existing.reasons = sig.reasons;
                                 existing.riskLevel = sig.riskLevel;
                                 existing.fibonacci = sig.fibonacci;
+                                existing.analysisTimeframe = sig.analysisTimeframe;
                                 existing.aiSources = sig.aiSources;
                                 existing.statusLabel = sig.statusLabel;
                                 renderSignals();
@@ -2012,6 +2014,57 @@ Evaluate objectively. Return ONLY valid JSON:
     }
 
     // ============================================================
+    // FIBONACCI CANDLE CHART
+    // ============================================================
+    let fibonacciChartRequestId = 0;
+
+    async function renderFibonacciChart(sig) {
+        const container = document.getElementById('modal-fibonacci-chart');
+        const status = document.getElementById('modal-fibonacci-status');
+        if (!container || !status) return;
+
+        const requestId = ++fibonacciChartRequestId;
+        container.innerHTML = '<div class="fibonacci-chart-loading"><i class="fa-solid fa-spinner fa-spin"></i>&nbsp; يتم تحميل الشموع وحساب فيبوناتشي…</div>';
+        status.textContent = 'جارٍ التحليل…';
+
+        const timeframeMap = { scalping: '15m', daytrade: '1h', swing: '4h', hedger: '1d', all: '1h' };
+        const timeframe = sig.analysisTimeframe || timeframeMap[sig.timeframe] || '1h';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/ohlcv?symbol=${encodeURIComponent(sig.symbol)}&timeframe=${encodeURIComponent(timeframe)}`);
+            const payload = await response.json();
+            if (requestId !== fibonacciChartRequestId) return;
+            if (!response.ok || payload.status !== 'success' || !Array.isArray(payload.data) || payload.data.length < 10) {
+                throw new Error('لا توجد شموع كافية لهذا الأصل والإطار الزمني');
+            }
+
+            const candles = payload.data;
+            const highs = candles.map(candle => Number(candle.high));
+            const lows = candles.map(candle => Number(candle.low));
+            const closes = candles.map(candle => Number(candle.close));
+            const atr = TA.calcAtr(highs, lows, closes, 14);
+            const fib = FibonacciAnalysis.analyze(highs, lows, closes[closes.length - 1], atr);
+            if (!fib.valid) throw new Error(fib.reason || 'تعذر تحديد موجة فيبوناتشي موثوقة');
+
+            const width = Math.max(360, Math.round(container.getBoundingClientRect().width || 900));
+            const svg = FibonacciAnalysis.buildChartSvg(candles, fib, width, 420);
+            if (!svg) throw new Error('تعذر رسم مستويات فيبوناتشي');
+
+            sig.fibonacci = fib;
+            container.innerHTML = svg;
+            const direction = fib.direction === 'bullish' ? 'موجة صاعدة' : 'موجة هابطة';
+            const proximity = fib.inGoldenZone ? 'داخل المنطقة الذهبية' : `الأقرب ${fib.nearestLevel}%`;
+            status.textContent = `${direction} • ${proximity} • ${timeframe.toUpperCase()}`;
+            status.className = `badge ${fib.confluence === 'NEUTRAL' ? 'badge-outline' : 'badge-gold'}`;
+        } catch (error) {
+            if (requestId !== fibonacciChartRequestId) return;
+            container.innerHTML = `<div class="fibonacci-chart-error"><i class="fa-solid fa-triangle-exclamation"></i>&nbsp; ${error.message}</div>`;
+            status.textContent = 'غير متوفر حاليًا';
+            status.className = 'badge badge-outline';
+        }
+    }
+
+    // ============================================================
     // SIGNAL MODAL
     // ============================================================
     function openModal(sigId) {
@@ -2059,10 +2112,8 @@ Evaluate objectively. Return ONLY valid JSON:
             }
             else tvSymbol = sig.symbol.replace('/','');
 
-            let tf = '60'; // 1H
-            if (sig.timeframe === 'scalping') tf = '15';
-            else if (sig.timeframe === 'daytrade') tf = '240';
-            else if (sig.timeframe === 'swing') tf = 'D';
+            const chartTimeframe = sig.analysisTimeframe || ({ scalping: '15m', daytrade: '1h', swing: '4h', hedger: '1d', all: '1h' }[sig.timeframe] || '1h');
+            const tf = ({ '15m': '15', '1h': '60', '4h': '240', '1d': 'D' })[chartTimeframe] || '60';
 
             new window.TradingView.widget({
                 autosize: true, symbol: tvSymbol, interval: tf, timezone: 'Asia/Riyadh',
@@ -2078,6 +2129,7 @@ Evaluate objectively. Return ONLY valid JSON:
         }
         
         signalModal.classList.add('active');
+        renderFibonacciChart(sig);
     }
 
     // AI Q&A in modal — uses Gemini if available
