@@ -295,6 +295,11 @@ def serve_app_js():
     return send_from_directory(APP_DIR, 'app.js')
 
 
+@app.route('/fibonacci.js', methods=['GET'])
+def serve_fibonacci_js():
+    return send_from_directory(APP_DIR, 'fibonacci.js')
+
+
 @app.route('/style.css', methods=['GET'])
 def serve_style_css():
     return send_from_directory(APP_DIR, 'style.css')

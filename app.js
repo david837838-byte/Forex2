@@ -279,6 +279,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // 5. Multi-Indicator Confluence Evaluation
                 const currentP = closes[closes.length - 1];
+                const fibonacci = typeof FibonacciAnalysis !== 'undefined'
+                    ? FibonacciAnalysis.analyze(highs, lows, currentP, atr)
+                    : { valid: false, confluence: 'NEUTRAL', inGoldenZone: false };
                 let buyScore = 0;
                 let sellScore = 0;
                 
@@ -305,6 +308,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // SMC Liquidity (FVG / Order Blocks)
                 if (fvg === 'Bullish FVG' || ob === 'Bullish OB') buyScore += 15;
                 if (fvg === 'Bearish FVG' || ob === 'Bearish OB') sellScore += 15;
+
+                // Fibonacci is confirmation only; it never creates a direction by itself.
+                if (fibonacci.confluence === 'BUY' && currentP > ema50) buyScore += 10;
+                if (fibonacci.confluence === 'SELL' && currentP < ema50) sellScore += 10;
                 
                 // ADX Trend Strength Boost
                 if (adx > 25) {
@@ -320,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const suggestedDir = buyScore >= sellScore ? 'BUY' : 'SELL';
                 
                 const analysis = {
-                    rsi, ema20, ema50, ema200, atr, adx, macd, bb, fvg, ob, trend, structure,
+                    rsi, ema20, ema50, ema200, atr, adx, macd, bb, fvg, ob, fibonacci, trend, structure,
                     marketRegime, score: totalScore, suggestedDir, buyScore, sellScore,
                     lastSwingHigh: swings.lastSwingHigh, lastSwingLow: swings.lastSwingLow,
                     currentPrice: currentP
@@ -358,6 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 suggestedDir: isUp ? 'BUY' : 'SELL',
                 buyScore: isUp ? 75 : 25,
                 sellScore: isUp ? 25 : 75,
+                fibonacci: { valid: false, confluence: 'NEUTRAL', inGoldenZone: false, reason: 'لا تتوفر شموع حقيقية كافية' },
                 lastSwingHigh: p + (atr * 1.8),
                 lastSwingLow: p - (atr * 1.8),
                 currentPrice: p
@@ -517,6 +525,7 @@ Technical Indicators:
 - Oscillators: RSI(14)=${ta.rsi}, MACD Line=${ta.macd?.line || 0}, Signal=${ta.macd?.signal || 0}, Hist=${ta.macd?.hist || 0}
 - Volatility & Range: ATR=${ta.atr}, Bollinger Bands=[Upper: ${ta.bb?.upper || 0}, Mid: ${ta.bb?.middle || 0}, Lower: ${ta.bb?.lower || 0}], ADX=${ta.adx}
 - Smart Money Concepts (SMC): Structure=${ta.structure}, FVG=${ta.fvg}, OrderBlock=${ta.ob}
+- Fibonacci Wave: ${JSON.stringify(ta.fibonacci || { valid: false })}
 - Recent Macro Context & News: ${JSON.stringify(macSum)}.
 
 Analyze this asset objectively without bias.
@@ -572,7 +581,7 @@ Return ONLY valid JSON:
                 const prompt = `You are an Independent Senior Quantitative Trading Analyst.
 Asset: ${assetKey}
 Price: ${ta.currentPrice}
-Technical Data: EMA20=${ta.ema20}, EMA50=${ta.ema50}, EMA200=${ta.ema200}, RSI=${ta.rsi}, MACD Hist=${ta.macd?.hist}, ATR=${ta.atr}, Structure=${ta.structure}.
+Technical Data: EMA20=${ta.ema20}, EMA50=${ta.ema50}, EMA200=${ta.ema200}, RSI=${ta.rsi}, MACD Hist=${ta.macd?.hist}, ATR=${ta.atr}, Structure=${ta.structure}, Fibonacci=${JSON.stringify(ta.fibonacci || { valid: false })}.
 Macro & News: ${JSON.stringify(macSum)}.
 
 Evaluate objectively. Return ONLY valid JSON:
@@ -824,14 +833,25 @@ Evaluate objectively. Return ONLY valid JSON:
             if (ta.fvg === 'Bullish FVG' || ta.ob === 'Bullish OB') buyScore += 8;
             if (ta.fvg === 'Bearish FVG' || ta.ob === 'Bearish OB') sellScore += 8;
 
-            // Factor 9: Volatility & ATR (Affects Market Quality only, NOT directional bias)
+            // Factor 9: Fibonacci retracement confluence — 10 pts max.
+            // It is accepted only near 38.2/50/61.8 and when the wave agrees with structure/trend.
+            const fib = ta.fibonacci;
+            if (fib?.valid && fib.confluence === 'BUY' && ta.structure === 'Bullish' && ta.trend === 'Uptrend') {
+                buyScore += fib.inGoldenZone ? 10 : 6;
+                marketQualityScore += fib.inGoldenZone ? 5 : 2;
+            } else if (fib?.valid && fib.confluence === 'SELL' && ta.structure === 'Bearish' && ta.trend === 'Downtrend') {
+                sellScore += fib.inGoldenZone ? 10 : 6;
+                marketQualityScore += fib.inGoldenZone ? 5 : 2;
+            }
+
+            // Factor 10: Volatility & ATR (Affects Market Quality only, NOT directional bias)
             if (ta.atr > 0 && (ta.atr / ta.currentPrice) >= 0.001) {
                 marketQualityScore += 15;
             } else {
                 marketQualityScore -= 10; // Extremely low volatility/spread risk
             }
 
-            // Factor 10: Macro Context & News Risk — 10 pts max
+            // Factor 11: Macro Context & News Risk — 10 pts max
             if (macEv.score >= 55) buyScore += 5;
             else if (macEv.score <= 45) sellScore += 5;
 
@@ -955,11 +975,19 @@ Evaluate objectively. Return ONLY valid JSON:
             reasons.push(`[الاتجاه الفني]: اتجاه ${ta.trend === 'Uptrend' ? 'صاعد 🟢' : 'هابط 🔴'} وتوافق الموفينجات EMA (20/50/200)`);
             reasons.push(`[الزخم]: مؤشر RSI (${ta.rsi}) مع تأكيد الماكد MACD (${ta.macd?.hist >= 0 ? 'إيجابي' : 'سلبي'})`);
             reasons.push(`[المفاهيم المؤسسية SMC]: منطقة ${ta.ob !== 'None' ? ta.ob : (ta.fvg !== 'None' ? ta.fvg : 'سيولة سعرية')} + هيكل ${ta.structure}`);
+            if (fib?.valid) {
+                const fibPrice = Number.isFinite(fib.nearestPrice) ? formatPrice(fib.nearestPrice, asset.category) : '--';
+                const fibContext = fib.inGoldenZone
+                    ? `السعر داخل المنطقة الذهبية 50%–61.8% (${fib.label})`
+                    : `أقرب مستوى ${fib.nearestLevel}% عند ${fibPrice} (${fib.label})`;
+                reasons.push(`[فيبوناتشي]: ${fibContext} • التوافق ${fib.confluence === 'NEUTRAL' ? 'محايد' : fib.confluence}`);
+            }
             reasons.push(`[إدارة المخاطر]: نسبة العائد للمخاطرة ${rr} (الوقف محمي بدقة ATR أسفل/أعلى القيعان)`);
             if (newsRiskInfo.warning) reasons.push(`[الأخبار الاقتصادية]: ${newsRiskInfo.warning}`);
             if (aiObj?.reasoning) reasons.push(`[تحليل الذكاء الاصطناعي]: ${aiObj.reasoning}`);
 
             const sources = ['الخوارزمية الكمية (Quantitative Engine)'];
+            if (fib?.valid) sources.push('Fibonacci 38.2–61.8');
             if (gemRes) sources.push('Gemini AI');
             if (oaiRes) sources.push('OpenAI GPT');
 
@@ -992,6 +1020,7 @@ Evaluate objectively. Return ONLY valid JSON:
                 aiSources: sources,
                 techScore: finalScore,
                 atr: atr,
+                fibonacci: fib || null,
                 time: new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })
             };
         }
@@ -1501,6 +1530,9 @@ Evaluate objectively. Return ONLY valid JSON:
                                 existing.quality = sig.quality;
                                 existing.reasons = sig.reasons;
                                 existing.riskLevel = sig.riskLevel;
+                                existing.fibonacci = sig.fibonacci;
+                                existing.aiSources = sig.aiSources;
+                                existing.statusLabel = sig.statusLabel;
                                 renderSignals();
                                 continue;
                             } else {
@@ -1654,6 +1686,9 @@ Evaluate objectively. Return ONLY valid JSON:
             const typeClass = isBuy ? 'type-buy' : 'type-sell';
             const typeLabel = isBuy ? 'شراء (BUY)' : 'بيع (SELL)';
             const typeIcon = isBuy ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
+            const fibBadge = sig.fibonacci?.valid
+                ? `<span class="badge badge-outline" style="font-size:0.75rem;" title="أقرب مستوى فيبوناتشي">Fib ${sig.fibonacci.nearestLevel}%${sig.fibonacci.inGoldenZone ? ' • المنطقة الذهبية' : ''}</span>`
+                : '';
             
             // Quality Badge Styling
             let qBadgeClass = 'badge-gold';
@@ -1706,6 +1741,7 @@ Evaluate objectively. Return ONLY valid JSON:
                     <div style="display:flex; gap:0.4rem; align-items:center;">
                         <span class="badge badge-gold" title="النقاط الفنية المتكاملة"><i class="fa-solid fa-chart-simple"></i> نقاط: ${sig.score || sig.confidence}/100</span>
                         <span class="badge badge-outline" style="font-size:0.75rem;" title="نسبة العائد إلى المخاطرة">R/R: ${sig.rr}</span>
+                        ${fibBadge}
                     </div>
                     <button class="btn btn-primary btn-sm analyze-btn" data-id="${sig.id}"><i class="fa-solid fa-chart-line"></i> تحليل وتفاصيل الصفقة</button>
                 </div>
