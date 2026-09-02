@@ -1,0 +1,17 @@
+[Unit]
+Description=MarketPulse FX web and MT5 bridge
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=marketpulse
+Group=marketpulse
+WorkingDirectory=/opt/marketpulse
+EnvironmentFile=/opt/marketpulse/.env
+ExecStart=/opt/marketpulse/.venv/bin/gunicorn --workers 1 --threads 8 --timeout 120 --bind 0.0.0.0:8081 wsgi:app
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

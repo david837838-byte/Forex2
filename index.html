@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ماركيت بلس FX | منصة تحليلات وتوصيات الذهب والنفط والعملات الفورية</title>
+    <meta name="description"
+        content="منصة متقدمة لتوصيات وإشارات تداول الذهب، النفط، والعملات الفورية، مربوطة بالتحليل الاقتصادي، قرارات الفيدرالي الأمريكي، وأخبار السياسة والأسواق المالية.">
+    <link rel="icon" href="data:,">
+
+    <!-- Google Fonts: Cairo & Readex Pro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Readex+Pro:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css?v=5">
+    <!-- TradingView Core Script -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+</head>
+
+<body>
+    <!-- Background Animated Particles / Glows -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="brand">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>MARKETPULSE <span class="accent-gold">FX</span></h1>
+                    <span class="brand-sub">توصيات ومحركات الأسواق المالية</span>
+                </div>
+            </div>
+
+            <nav class="nav-links">
+                <a href="#signals-section" class="nav-item active"><i class="fa-solid fa-bolt"></i> التوصيات الحية</a>
+                <a href="#fed-section" class="nav-item"><i class="fa-solid fa-landmark"></i> الفيدرالي والأخبار</a>
+                <a href="#calendar-section" class="nav-item"><i class="fa-solid fa-calendar-days"></i> الأجندة
+                    الاقتصادية</a>
+                <a href="#chart-section" class="nav-item"><i class="fa-solid fa-chart-area"></i> الرسوم البيانية</a>
+                <a href="#calculator-section" class="nav-item"><i class="fa-solid fa-calculator"></i> حاسبة المخاطر</a>
+            </nav>
+
+            <div class="nav-actions">
+                <div class="market-sessions-wrap" id="market-sessions-wrap">
+                    <span class="session-badge active-session" id="current-session-badge">
+                        <span class="pulse-dot"></span>
+                        <span id="current-session-text">جلسة نيويورك & لندن: مفتوحة 🟢</span>
+                    </span>
+                    <span class="session-countdown" id="session-countdown"><i class="fa-regular fa-clock"></i> إغلاق
+                        الجلسة: 04:22:15</span>
+                </div>
+                <button class="btn btn-gold" id="autotrade-panel-btn" style="box-shadow: 0 0 15px rgba(255,215,0,0.25); font-weight:800;">
+                    <i class="fa-solid fa-robot fa-beat-fade"></i> <span id="autotrade-status-text">التداول الآلي (Auto-Trade)</span>
+                </button>
+                <button class="btn btn-outline" id="admin-panel-btn">
+                    <i class="fa-solid fa-user-shield text-gold"></i> لوحة الأدمن
+                </button>
+                <button class="btn btn-outline" id="refresh-signals-btn">
+                    <i class="fa-solid fa-rotate-right"></i> تحديث التوصيات
+                </button>
+            </div>
+        </div>
+
+        <!-- AI Engine & Sessions Status Strip -->
+        <div class="ai-strip">
+            <div class="ai-strip-container">
+                <div class="ai-status-badge">
+                    <i class="fa-solid fa-brain text-gold fa-beat"></i>
+                    <span>محرك الذكاء الاصطناعي (AI Neural Scanner): <strong class="text-success">يعمل بالخلفية ويراقب
+                            كل دقيقة</strong></span>
+                </div>
+                <div class="sessions-flags">
+                    <span class="flag-item" id="flag-sydney"><i class="fa-solid fa-earth-oceania"></i> سيدني: <strong
+                            class="text-muted">مغلقة</strong></span>
+                    <span class="flag-item" id="flag-tokyo"><i class="fa-solid fa-sun"></i> طوكيو: <strong
+                            class="text-muted">مغلقة</strong></span>
+                    <span class="flag-item active" id="flag-london"><i class="fa-solid fa-building-columns"></i> لندن:
+                        <strong class="text-success">مفتوحة 🟢</strong></span>
+                    <span class="flag-item active" id="flag-ny"><i class="fa-solid fa-city"></i> نيويورك: <strong
+                            class="text-success">مفتوحة 🟢</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Price Ticker Strip -->
+        <div class="ticker-wrapper">
+            <div class="ticker-label"><i class="fa-solid fa-wave-square"></i> بث دقيقي حي:</div>
+            <div class="ticker-track" id="ticker-track">
+                <!-- Ticker items inserted via JS -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="main-layout">
+
+        <!-- Hero Overview Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <div class="hero-tag"><i class="fa-solid fa-shield-halved"></i> ذكاء اصطناعي + تحليلات الخبراء</div>
+                <h2 class="hero-title">إشارات وتوصيات دقيقة لـ <span class="highlight-gold">الذهب</span>، <span
+                        class="highlight-oil">النفط</span> و<span class="highlight-forex">العملات</span></h2>
+                <p class="hero-desc">تغطية متكاملة لأسعار الدخول والخروج والهدف والتصحيح، مربوطة بلحظة صدور الأخبار
+                    الاقتصادية وتلميحات الفيدرالي الأمريكي والجيوسياسة.</p>
+            </div>
+
+            <!-- Quick Market Overview Stats Cards (Continuous Live Ticking) -->
+            <div class="quick-stats-grid" id="quick-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="title">الذهب (XAUUSD) <span class="badge-live-mini"><span class="pulse-dot"></span>
+                                بث حي</span></span>
+                        <span class="price text-gold" id="stat-price-XAUUSD">--</span>
+                        <span class="change text-muted" id="stat-change-XAUUSD">--</span>
+                    </div>
+                    <div class="stat-icon gold-bg"><i class="fa-solid fa-coins"></i></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="title">الفضة (XAGUSD) <span class="badge-live-mini"><span class="pulse-dot"></span>
+                                بث حي</span></span>
+                        <span class="price text-gold" id="stat-price-XAGUSD">--</span>
+                        <span class="change text-muted" id="stat-change-XAGUSD">--</span>
+                    </div>
+                    <div class="stat-icon gold-bg"><i class="fa-solid fa-gem"></i></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="title">النفط الخام (USOIL) <span class="badge-live-mini"><span
+                                    class="pulse-dot"></span> بث حي</span></span>
+                        <span class="price text-oil" id="stat-price-USOIL">--</span>
+                        <span class="change text-muted" id="stat-change-USOIL">--</span>
+                    </div>
+                    <div class="stat-icon oil-bg">
+                        <div class="fa-solid fa-droplet"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="title">اليورو / دولار (EURUSD) <span class="badge-live-mini"><span
+                                    class="pulse-dot"></span> بث حي</span></span>
+                        <span class="price text-forex" id="stat-price-EURUSD">--</span>
+                        <span class="change text-muted" id="stat-change-EURUSD">--</span>
+                    </div>
+                    <div class="stat-icon forex-bg"><i class="fa-solid fa-euro-sign"></i></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="title">الباوند / دولار (GBPUSD) <span class="badge-live-mini"><span
+                                    class="pulse-dot"></span> بث حي</span></span>
+                        <span class="price text-forex" id="stat-price-GBPUSD">--</span>
+                        <span class="change text-muted" id="stat-change-GBPUSD">--</span>
+                    </div>
+                    <div class="stat-icon forex-bg"><i class="fa-solid fa-sterling-sign"></i></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="title">داو جونز (US30) <span class="badge-live-mini"><span
+                                    class="pulse-dot"></span> بث حي</span></span>
+                        <span class="price text-info" id="stat-price-US30">--</span>
+                        <span class="change text-muted" id="stat-change-US30">--</span>
+                    </div>
+                    <div class="stat-icon forex-bg"><i class="fa-solid fa-chart-line-up"></i></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="title">إنفيديا (NVDA) <span class="badge-live-mini"><span class="pulse-dot"></span>
+                                بث حي</span></span>
+                        <span class="price text-info" id="stat-price-NVDA">--</span>
+                        <span class="change text-muted" id="stat-change-NVDA">--</span>
+                    </div>
+                    <div class="stat-icon btc-bg"><i class="fa-solid fa-microchip"></i></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="title">سهم تسلا (TSLA) <span class="badge-live-mini"><span
+                                    class="pulse-dot"></span> بث حي</span></span>
+                        <span class="price text-info" id="stat-price-TSLA">--</span>
+                        <span class="change text-muted" id="stat-change-TSLA">--</span>
+                    </div>
+                    <div class="stat-icon btc-bg"><i class="fa-solid fa-car-side"></i></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="title">البتكوين (BTCUSD) <span class="badge-live-mini"><span
+                                    class="pulse-dot"></span> 24/7 بث حي</span></span>
+                        <span class="price text-crypto" id="stat-price-BTCUSD">--</span>
+                        <span class="change text-muted" id="stat-change-BTCUSD">--</span>
+                    </div>
+                    <div class="stat-icon btc-bg"><i class="fa-brands fa-bitcoin"></i></div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="title">الإيثيريوم (ETHUSD) <span class="badge-live-mini"><span
+                                    class="pulse-dot"></span> 24/7 بث حي</span></span>
+                        <span class="price text-crypto" id="stat-price-ETHUSD">--</span>
+                        <span class="change text-muted" id="stat-change-ETHUSD">--</span>
+                    </div>
+                    <div class="stat-icon btc-bg"><i class="fa-brands fa-ethereum"></i></div>
+                </div>
+            </div>
+            <!-- Standalone Dedicated OTC Market Section (24/7 Weekend Trading) -->
+            <section class="otc-market-banner" id="otc-market-section"
+                style="background: linear-gradient(135deg, rgba(255,165,0,0.08), rgba(12,18,28,0.95)); border: 1px solid rgba(255,165,0,0.3); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 2rem;">
+                <div
+                    style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+                    <div>
+                        <span class="badge badge-warning"
+                            style="background:rgba(255,165,0,0.15); color:#ffa500; border:1px solid #ffa500;">
+                            <i class="fa-solid fa-bolt-lightning"></i> سوق OTC المستقل (تداول العطلات 24/7)
+                        </span>
+                        <h3 style="font-size:1.15rem; margin-top:0.35rem; color:#fff;">قسم الذهب والسلع OTC المستقل عن
+                            البورصة العالمية الرسمية</h3>
+                    </div>
+                    <span class="badge-mini-glow"
+                        style="background:rgba(255,165,0,0.2); color:#ffa500; padding:0.4rem 0.85rem; border-radius:50px; font-weight:700;">
+                        <span class="pulse-dot" style="background:#ffa500;"></span> يعمل 24/7 طوال أيام السبت والأحد
+                        والعطلات
+                    </span>
+                </div>
+                <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;">
+                    ملاحظة هامة: هذا القسم مخصص لأسواق الـ OTC غير المربوطة بمواعيد البورصة العالمية الرسمية. البورصات
+                    الرسمية تثبت أسعارها في العطلة بينما يواصل سوق الـ OTC التذبذب وإعطاء التوصيات 24/7.
+                </p>
+
+                <div class="quick-stats-grid">
+                    <div class="stat-card" style="border-color: rgba(255,165,0,0.3);">
+                        <div class="stat-info">
+                            <span class="title">الذهب OTC (XAUUSD OTC) <span class="badge-live-mini"><span
+                                        class="pulse-dot"></span> OTC 24/7</span></span>
+                            <span class="price text-gold" id="stat-price-XAUUSD_OTC">--</span>
+                            <span class="change text-muted" id="stat-change-XAUUSD_OTC">--</span>
+                        </div>
+                        <div class="stat-icon gold-bg"><i class="fa-solid fa-bolt-lightning text-warning"></i></div>
+                    </div>
+
+                    <div class="stat-card" style="border-color: rgba(255,165,0,0.3);">
+                        <div class="stat-info">
+                            <span class="title">الفضة OTC (XAGUSD OTC) <span class="badge-live-mini"><span
+                                        class="pulse-dot"></span> OTC 24/7</span></span>
+                            <span class="price text-gold" id="stat-price-XAGUSD_OTC">--</span>
+                            <span class="change text-muted" id="stat-change-XAGUSD_OTC">--</span>
+                        </div>
+                        <div class="stat-icon gold-bg"><i class="fa-solid fa-gem text-warning"></i></div>
+                    </div>
+
+                    <div class="stat-card" style="border-color: rgba(255,165,0,0.3);">
+                        <div class="stat-info">
+                            <span class="title">النفط الخام OTC (USOIL OTC) <span class="badge-live-mini"><span
+                                        class="pulse-dot"></span> OTC 24/7</span></span>
+                            <span class="price text-oil" id="stat-price-USOIL_OTC">--</span>
+                            <span class="change text-muted" id="stat-change-USOIL_OTC">--</span>
+                        </div>
+                        <div class="stat-icon oil-bg"><i class="fa-solid fa-droplet text-oil"></i></div>
+                    </div>
+
+                    <div class="stat-card" style="border-color: rgba(255,165,0,0.3);">
+                        <div class="stat-info">
+                            <span class="title">اليورو OTC (EURUSD OTC) <span class="badge-live-mini"><span
+                                        class="pulse-dot"></span> OTC 24/7</span></span>
+                            <span class="price text-forex" id="stat-price-EURUSD_OTC">--</span>
+                            <span class="change text-muted" id="stat-change-EURUSD_OTC">--</span>
+                        </div>
+                        <div class="stat-icon forex-bg"><i class="fa-solid fa-euro-sign text-forex"></i></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Market Movers Summary / Why is market moving -->
+            <section class="market-mover-banner" id="market-mover-banner">
+                <div class="mover-header">
+                    <div class="mover-title">
+                        <i class="fa-solid fa-fire-flame-curved icon-fire"></i>
+                        <span>محرك الأسواق الرئيسي اليوم:</span>
+                    </div>
+                    <span class="badge badge-warning" id="mover-impact-tag">تأثير مرتفع جداً</span>
+                </div>
+                <p class="mover-body" id="mover-body">
+                    تصريحات أعضاء الفيدرالي الأمريكي تشير إلى تثبيت أسعار الفائدة عند المستويات الحالية، مما يدفع
+                    <strong>الذهب (XAUUSD)</strong> لاختبار مناطق مقاومة تاريخية وسط حالة ترقب لبيانات التضخم الأمريكية
+                    وتوترات المعروض في سوق النفط الخام (WTI).
+                </p>
+            </section>
+
+            <!-- Main Workspace Grid (Signals + Sidebar News & Fed) -->
+            <div class="workspace-grid">
+
+                <!-- Left Main Column: Live Signals & Controls -->
+                <div class="workspace-main" id="signals-section">
+
+                    <!-- AI Deep Scanner Action Banner -->
+                    <div class="ai-scanner-card">
+                        <div class="scanner-info">
+                            <div class="scanner-icon">
+                                <i class="fa-solid fa-microchip text-gold fa-beat"></i>
+                            </div>
+                            <div class="scanner-text">
+                                <h4>محرك الخوارزميات والذكاء الاصطناعي (AI Signal Scanner)</h4>
+                                <p>يقوم المحرك بفحص التغيرات السعرية ومؤشرات التضخم وتصريحات الفيدرالي <strong
+                                        class="text-gold">كل دقيقة تلقائياً</strong> لاقتناص أفضل نقاط الدخول.</p>
+                            </div>
+                        </div>
+                        <div class="scanner-actions" style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+                            <span class="badge badge-gold" id="scanner-mode-badge" style="font-size:0.8rem; padding:0.4rem 0.8rem;">تلقائي (AUTO 10M)</span>
+                            <span class="scan-time-tag" id="last-scan-time"><i class="fa-solid fa-satellite-dish text-success fa-beat-fade"></i> الرادار: <strong class="text-success">نشط 🟢</strong> (كل 1 د)</span>
+                            <span class="scan-time-tag" id="next-eval-time" style="background:rgba(255,215,0,0.08); border-color:var(--gold); color:var(--gold);"><i class="fa-solid fa-clock-rotate-left"></i> التقييم القادم: 10:00</span>
+                            <button class="btn btn-gold btn-sm" id="trigger-ai-scan-btn">
+                                <i class="fa-solid fa-bolt"></i> فحص وتقييم فوري
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <div class="section-title-wrap">
+                            <h3><i class="fa-solid fa-bolt text-gold"></i> غرف التوصيات والإشارات الحية (مراقبة لحظية)
+                            </h3>
+                            <span class="badge badge-gold" id="active-signals-count">0 صفقة نشطة</span>
+                        </div>
+
+                        <!-- Category & Timeframe & Trader Style Filters -->
+                        <div class="filters-bar">
+                            <div class="filter-group">
+                                <span class="filter-label"><i class="fa-solid fa-layer-group"></i> التصنيف
+                                    الشامل:</span>
+                                <button class="filter-btn active" data-asset="all">الكل (All Assets)</button>
+                                <button class="filter-btn" data-asset="favorites" style="border-color:var(--gold); color:var(--gold);"><i class="fa-solid fa-star text-gold"></i> مفضلتي</button>
+                                <button class="btn btn-outline" id="manage-fav-btn" style="padding:0.4rem 0.8rem; border-color:var(--gold); color:var(--gold); margin-right:0.5rem;"><i class="fa-solid fa-gear"></i> إدارة المفضلات</button>
+                                <button class="filter-btn" data-asset="gold"><i class="fa-solid fa-coins text-gold"></i>
+                                    الذهب والفضة العالمي</button>
+                                <button class="filter-btn" data-asset="otc"><i
+                                        class="fa-solid fa-bolt-lightning text-warning"></i> سوق الذهب والسلع OTC (عطلات
+                                    24/7)</button>
+                                <button class="filter-btn" data-asset="oil"><i class="fa-solid fa-droplet text-oil"></i>
+                                    النفط والغاز</button>
+                                <button class="filter-btn" data-asset="forex"><i
+                                        class="fa-solid fa-money-bill-transfer text-forex"></i> كل أزواج
+                                    العملات</button>
+                                <button class="filter-btn" data-asset="crypto"><i class="fa-brands fa-bitcoin text-crypto"></i> الكريبتو (BTC, ETH...)</button>
+                                <button class="filter-btn" data-asset="stocks"><i
+                                        class="fa-solid fa-chart-pie text-info"></i> الأسهم والمؤشرات (US30,
+                                    NVDA)</button>
+                            </div>
+
+                            <div class="filter-group" style="margin-top:0.6rem; display:flex; flex-wrap:wrap; gap:0.6rem; align-items:center;">
+                                <span class="filter-label"><i class="fa-solid fa-robot text-gold"></i> نظام التوليد:</span>
+                                <select class="custom-select" id="signal-mode-select"
+                                    style="min-width:180px; background:var(--bg-dark-secondary); color:var(--gold); border-color:var(--gold); font-weight:bold;">
+                                    <option value="auto" selected>⚡ تلقائي (AUTO 10 د)</option>
+                                    <option value="manual">✋ يدوي (MANUAL بالطلب)</option>
+                                </select>
+
+                                <span class="filter-label" style="margin-right:0.6rem;"><i class="fa-solid fa-sliders text-gold"></i> حد الفلترة:</span>
+                                <select class="custom-select" id="min-score-select"
+                                    style="min-width:160px; background:var(--bg-dark-secondary); color:var(--text-primary); border-color:var(--border-color);">
+                                    <option value="65">65 نقطة (فرص متزايدة)</option>
+                                    <option value="68">68 نقطة (متوازن مرن)</option>
+                                    <option value="70" selected>70 نقطة (متوازن ذكي ⚖️)</option>
+                                    <option value="72">72 نقطة (عالي الجودة)</option>
+                                    <option value="75">75 نقطة (نخبوي قناص)</option>
+                                </select>
+
+                                <span class="filter-label" style="margin-right:0.6rem;"><i class="fa-solid fa-user-gear text-gold"></i> النمط:</span>
+                                <select class="custom-select" id="trader-type-select"
+                                    style="min-width:170px; background:var(--bg-dark-secondary); color:var(--text-primary); border-color:var(--border-color);">
+                                    <option value="all" selected>جميع الأساليب</option>
+                                    <option value="daytrade">⚡ تداول يومي (Daytrade)</option>
+                                    <option value="scalping">🚀 سكالبينج (Scalping 15M)</option>
+                                    <option value="swing">📈 سوينغ (Swing Daily)</option>
+                                    <option value="hedger">🛡️ تحوط (Macro Hedger)</option>
+                                </select>
+                                
+                                <span class="filter-label" style="margin-right:0.6rem;"><i class="fa-solid fa-clock text-gold"></i> الفريم:</span>
+                                <select class="custom-select" id="timeframe-select" style="min-width:140px;">
+                                    <option value="15m">15 دقيقة (15M)</option>
+                                    <option value="30m">30 دقيقة (30M)</option>
+                                    <option value="1H" selected>1 ساعة (1H)</option>
+                                    <option value="4H">4 ساعات (4H)</option>
+                                    <option value="1D">يومي (1D)</option>
+                                </select>
+
+                                <button class="btn btn-gold btn-sm" id="generate-ai-signal-btn" style="margin-right:auto;">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> توليد توصيات فورية الآن
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Signals Cards Grid -->
+                    <div class="signals-grid" id="signals-grid">
+                        <!-- Signals populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Right Sidebar: Fed Monitor & AI News Impact Feed -->
+                <aside class="workspace-sidebar" id="fed-section">
+
+                    <!-- Federal Reserve Watch Widget -->
+                    <div class="card sidebar-card fed-card">
+                        <div class="card-header">
+                            <h4><i class="fa-solid fa-landmark text-gold"></i> مرصد الفيدرالي الأمريكي (FED Watch)</h4> <button id="fed-edit-btn" class="btn btn-outline" style="padding:0.2rem 0.5rem; font-size:0.8rem; margin-right:auto;"><i class="fa-solid fa-pen"></i></button>
+                            <span class="badge badge-live">تحديث فورياً</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="fed-rate-display">
+                                <div class="rate-box">
+                                    <span class="rate-label">الفائدة الحالية</span>
+                                    <span class="rate-val" id="fed-rate-val">5.50%</span>
+                                </div>
+                                <div class="rate-box highlight">
+                                    <span class="rate-label">توقع الاجتماع القادم</span>
+                                    <span class="rate-val text-gold" id="fed-exp-val">تثبيت (88%)</span>
+                                </div>
+                            </div>
+
+                            <div class="fed-bias-meter">
+                                <div class="meter-labels">
+                                    <span class="label-dove"><i class="fa-solid fa-dove"></i> تيسيري (Dove)</span>
+                                    <span class="label-hawk">تشددي (Hawk) <i class="fa-solid fa-crow"></i></span>
+                                </div>
+                                <div class="meter-bar-track">
+                                    <div class="meter-bar-fill" style="width: 65%;"></div>
+                                </div>
+                                <div class="meter-status">التوجه الحالي: <strong>تشددي مع ترقب التضخم</strong></div>
+                            </div>
+
+                            <div class="fed-stats-list">
+                                <div class="fed-stat-item">
+                                    <span class="stat-name">مؤشر أسعار المستهلك (CPI):</span>
+                                    <span class="stat-value text-warning" id="fed-cpi-val">3.0% (إيجابي للدولار)</span>
+                                </div>
+                                <div class="fed-stat-item">
+                                    <span class="stat-name">وظائف غير الزراعيين (NFP):</span>
+                                    <span class="stat-value text-success" id="fed-nfp-val">+206K (قوي)</span>
+                                </div>
+                                <div class="fed-stat-item">
+                                    <span class="stat-name">تأثير الفيدرالي على الذهب:</span>
+                                    <span class="stat-value text-gold">ضغط مؤقت ثم صعود مع التصحيح</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Geopolitical & Economic News Impact Feed -->
+                    <div class="card sidebar-card news-card">
+                        <div class="card-header">
+                            <h4><i class="fa-solid fa-newspaper text-info"></i> الأخبار والمحركات السياسية</h4>
+                            <span class="news-live-tag"><i class="fa-solid fa-circle-dot"></i> حي</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="news-list" id="news-list">
+                                <!-- News Cards populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                </aside>
+            </div>
+
+            <!-- Economic Calendar Section -->
+            <section class="section-block" id="calendar-section">
+                <div class="section-header">
+                    <div class="section-title-wrap">
+                        <h3><i class="fa-solid fa-calendar-days text-info"></i> الأجندة الاقتصادية والمواعيد المفصلية
+                        </h3>
+                        <p class="section-subtitle">أهم الأحداث والبيانات الاقتصادية العالمية والتأثيرات التوقعية الحية
+                        </p>
+                    </div>
+                    <div class="calendar-actions">
+                        <button class="btn btn-sm btn-outline active" data-impact="all">كل التأثيرات</button>
+                        <button class="btn btn-sm btn-outline" data-impact="high"><i
+                                class="fa-solid fa-triangle-exclamation text-danger"></i> عالي التأثير</button>
+                    </div>
+                </div>
+
+                <div class="card calendar-card">
+                    <div class="table-responsive">
+                        <table class="custom-table" id="calendar-table">
+                            <thead>
+                                <tr>
+                                    <th>الوقت</th>
+                                    <th>العملة / الأصل</th>
+                                    <th>الحدث الاقتصادى</th>
+                                    <th>الأهمية</th>
+                                    <th>الحالي (Actual)</th>
+                                    <th>التوقع (Forecast)</th>
+                                    <th>السابق (Previous)</th>
+                                    <th>التأثير المتوقع</th>
+                                </tr>
+                            </thead>
+                            <tbody id="calendar-tbody">
+                                <!-- Calendar rows loaded via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live TradingView Chart & Technical Analysis -->
+            <section class="section-block" id="chart-section">
+                <div class="section-header">
+                    <div class="section-title-wrap">
+                        <h3><i class="fa-solid fa-chart-area text-gold"></i> الرسم البياني الحي والتحليل الفني</h3>
+                        <p class="section-subtitle">شارت حي ومباشر لتحليل تحركات الذهب، النفط والعملات لحظياً</p>
+                    </div>
+
+                    <div class="chart-switcher-btns" id="chart-switcher">
+                        <button class="chart-btn active" data-symbol="OANDA:XAUUSD">الذهب (XAUUSD)</button>
+                        <button class="chart-btn" data-symbol="TVC:SILVER">الفضة (XAGUSD)</button>
+                        <button class="chart-btn" data-symbol="TVC:USOIL">النفط (USOIL)</button>
+                        <button class="chart-btn" data-symbol="FX:EURUSD">اليورو / دولار (EURUSD)</button>
+                        <button class="chart-btn" data-symbol="FX:GBPUSD">الباوند / دولار (GBPUSD)</button>
+                        <button class="chart-btn" data-symbol="FX:USDJPY">الدولار / ين (USDJPY)</button>
+                        <button class="chart-btn" data-symbol="FX:USDCHF">الدولار / فرنك (USDCHF)</button>
+                        <button class="chart-btn" data-symbol="FX:USDCAD">الدولار / كندي (USDCAD)</button>
+                        <button class="chart-btn" data-symbol="FX:AUDUSD">الأسترالي / دولار (AUDUSD)</button>
+                        <button class="chart-btn" data-symbol="FX:NZDUSD">النيوزيلندي / دولار (NZDUSD)</button>
+                        <button class="chart-btn" data-symbol="FX:EURGBP">اليورو / باوند (EURGBP)</button>
+                        <button class="chart-btn" data-symbol="FX:EURJPY">اليورو / ين (EURJPY)</button>
+                        <button class="chart-btn" data-symbol="FX:GBPJPY">الباوند / ين (GBPJPY)</button>
+                        <button class="chart-btn" data-symbol="CAPITALCOM:US30">داو جونز (US30)</button>
+                        <button class="chart-btn" data-symbol="NASDAQ:NVDA">إنفيديا (NVDA)</button>
+                        <button class="chart-btn" data-symbol="NASDAQ:TSLA">تسلا (TSLA)</button>
+                        <button class="chart-btn" data-symbol="BINANCE:BTCUSDT">البتكوين (BTCUSD)</button>
+                        <button class="chart-btn" data-symbol="BINANCE:ETHUSDT">الإيثيريوم (ETHUSD)</button>
+                        <button class="chart-btn" data-symbol="BINANCE:SOLUSDT">سولانا (SOLUSD)</button>
+                    </div>
+                </div>
+
+                <div class="card chart-container-card">
+                    <!-- Visual Interactive Chart Signal Levels & Anti-Fake-News Bar -->
+                    <div class="chart-levels-overlay" id="chart-levels-overlay"
+                        style="background: rgba(12,18,28,0.95); border-bottom: 1px solid rgba(255,215,0,0.25); padding: 0.85rem 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <span class="badge badge-gold" id="chart-overlay-asset-tag"><i
+                                    class="fa-solid fa-crosshairs"></i> مستويات الذهب (XAUUSD) الحية:</span>
+                            <span class="badge badge-mini-glow" id="fake-news-verify-badge"
+                                style="background:rgba(0,230,118,0.15); color:var(--success); border:1px solid var(--success); font-size:0.75rem;">
+                                <i class="fa-solid fa-shield-check"></i> محصّن ضد الشائعات والأخبار الكاذبة 🟢
+                            </span>
+                        </div>
+
+                        <div
+                            style="display:flex; align-items:center; flex-wrap:wrap; gap:1.25rem; font-size:0.85rem; font-weight:700;">
+                            <div style="color:var(--gold);">
+                                <span style="color:var(--text-secondary); font-size:0.75rem; display:block;">سعر الدخول
+                                    (Entry):</span>
+                                <span id="chart-level-entry">$4,000.00</span>
+                            </div>
+                            <div style="color:var(--success);">
+                                <span style="color:var(--text-secondary); font-size:0.75rem; display:block;">الهدف الأول
+                                    (TP1):</span>
+                                <span id="chart-level-tp1">$4,035.00</span>
+                            </div>
+                            <div style="color:var(--success);">
+                                <span style="color:var(--text-secondary); font-size:0.75rem; display:block;">الهدف
+                                    الثاني (TP2):</span>
+                                <span id="chart-level-tp2">$4,070.00</span>
+                            </div>
+                            <div style="color:var(--danger);">
+                                <span style="color:var(--text-secondary); font-size:0.75rem; display:block;">وقف الخسارة
+                                    (SL):</span>
+                                <span id="chart-level-sl">$3,970.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TradingView Embed Container -->
+                    <div id="tradingview_widget_container" class="tradingview-container"></div>
+                </div>
+            </section>
+
+            <!-- Position Calculator & Risk Management -->
+            <section class="section-block" id="calculator-section">
+                <div class="section-header">
+                    <div class="section-title-wrap">
+                        <h3><i class="fa-solid fa-calculator text-success"></i> حاسبة إدارة المخاطر وحجم عقود اللوت (Lot
+                            Size Calculator)</h3>
+                        <p class="section-subtitle">احسب حجم صفقتك بدقة للحفاظ على رأس مالك وفقاً لأي أصل مالي تختاره
+                        </p>
+                    </div>
+                </div>
+
+                <div class="calculator-grid">
+                    <!-- Calculator Inputs Form -->
+                    <div class="card calc-form-card">
+                        <div class="card-header">
+                            <h4><i class="fa-solid fa-sliders"></i> المدخلات الأساسية</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="calc-asset">الأصل المالي المستهدف:</label>
+                                <select id="calc-asset" class="custom-input">
+                                    <option value="gold" selected>الذهب (XAU/USD - $4,000)</option>
+                                    <option value="silver">الفضة (XAG/USD - $38.50)</option>
+                                    <option value="oil">النفط الخام (WTI Crude)</option>
+                                    <option value="forex">أزواج العملات (EURUSD, GBPUSD...)</option>
+                                    <option value="stocks">الأسهم والمؤشرات (US30, NVDA, AAPL)</option>
+                                    <option value="crypto">العملات الرقمية (BTC, ETH, SOL)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="calc-balance">رصيد الحساب ($):</label>
+                                    <input type="number" id="calc-balance" class="custom-input" value="10000"
+                                        step="100">
+                                </div>
+                                <div class="form-group">
+                                    <label for="calc-risk">نسبة المخاطرة (%):</label>
+                                    <input type="number" id="calc-risk" class="custom-input" value="1.5" step="0.1"
+                                        min="0.1" max="10">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="calc-entry">سعر الدخول ($):</label>
+                                    <input type="number" id="calc-entry" class="custom-input" value="4015.50"
+                                        step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="calc-stop">سعر وقف الخسارة ($):</label>
+                                    <input type="number" id="calc-stop" class="custom-input" value="3985.50" step="0.1">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="calc-target">سعر الهدف المستهدف ($):</label>
+                                <input type="number" id="calc-target" class="custom-input" value="4080.50" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calculator Output Display -->
+                    <div class="card calc-result-card">
+                        <div class="card-header">
+                            <h4><i class="fa-solid fa-square-poll-vertical text-gold"></i> نتائج حساب حجم الصفقة
+                                والمخاطرة</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="result-highlight-box">
+                                <span class="res-title">حجم اللوت الموصى به (Lot Size):</span>
+                                <span class="res-value text-gold" id="res-lot-size">0.10 Lot</span>
+                                <span class="res-sub">عقد قياسي (Standard Lot)</span>
+                            </div>
+
+                            <div class="results-stats-list">
+                                <div class="res-stat-row">
+                                    <span class="label">المبلغ المخاطر به (أقصى خسارة):</span>
+                                    <span class="val text-danger" id="res-risk-amount">$150.00</span>
+                                </div>
+                                <div class="res-stat-row">
+                                    <span class="label">الربح المتوقع عند الوصول للهدف:</span>
+                                    <span class="val text-success" id="res-profit-amount">$300.00</span>
+                                </div>
+                                <div class="res-stat-row">
+                                    <span class="label">عدد نقاط وقف الخسارة (Stop Pips):</span>
+                                    <span class="val" id="res-stop-pips">150 نقطة</span>
+                                </div>
+                                <div class="res-stat-row">
+                                    <span class="label">نسبة العائد للمخاطرة (R:R Ratio):</span>
+                                    <span class="val text-info" id="res-rr-ratio">1 : 2.00</span>
+                                </div>
+                            </div>
+
+                            <div class="calc-advice-box">
+                                <i class="fa-solid fa-lightbulb text-gold"></i>
+                                <span id="calc-advice-text">إدارة مخاطر ممتازة! الصفقة تلتزم بنسبة عائد للمخاطرة تزيد عن
+                                    1:2 وهي مناسبة للحفاظ على نمو المحفظة.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+    </main>
+
+    <!-- Manage Favorites Modal -->
+    <div class="modal-overlay" id="favorites-modal">
+        <div class="modal-card" style="max-width: 600px;">
+            <button class="modal-close" id="fav-modal-close-btn">&times;</button>
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255,215,0,0.2); padding-bottom: 1rem; margin-bottom: 1rem;">
+                <h3 style="color:var(--gold); margin:0;"><i class="fa-solid fa-star"></i> إدارة المفضلات</h3>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin:0.5rem 0 0 0;">اختر الأسواق والعملات التي ترغب بمراقبتها وتوليد توصيات مخصصة لها.</p>
+            </div>
+            <div class="modal-body" style="max-height: 50vh; overflow-y: auto;">
+                <div id="favorites-list-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
+                    <!-- Checkboxes will be injected here via JS -->
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                <button class="btn btn-outline" id="fav-modal-dismiss-btn">إلغاء</button>
+                <button class="btn btn-primary" id="fav-modal-save-btn">حفظ المفضلات</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FED Watch Edit Modal -->
+    <div class="modal-overlay" id="fed-modal">
+        <div class="modal-card" style="max-width: 400px;">
+            <button class="modal-close" id="fed-modal-close-btn">&times;</button>
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255,215,0,0.2); padding-bottom: 1rem; margin-bottom: 1rem;">
+                <h3 style="color:var(--gold); margin:0;"><i class="fa-solid fa-landmark"></i> تحديث مرصد الفيدرالي</h3>
+            </div>
+            <div class="modal-body" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div>
+                    <label>الفائدة الحالية</label>
+                    <input type="text" id="fed-edit-rate" class="calc-input" value="5.50%">
+                </div>
+                <div>
+                    <label>توقع الاجتماع القادم</label>
+                    <input type="text" id="fed-edit-exp" class="calc-input" value="تثبيت (88%)">
+                </div>
+                <div>
+                    <label>التضخم (CPI)</label>
+                    <input type="text" id="fed-edit-cpi" class="calc-input" value="3.0% (إيجابي للدولار)">
+                </div>
+                <div>
+                    <label>الوظائف (NFP)</label>
+                    <input type="text" id="fed-edit-nfp" class="calc-input" value="+206K (قوي)">
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                <button class="btn btn-primary" id="fed-modal-save-btn" style="width: 100%;">حفظ التحديثات</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signal Details Modal -->
+    <div class="modal-overlay" id="signal-modal">
+        <div class="modal-card">
+            <button class="modal-close" id="modal-close-btn">&times;</button>
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <span class="badge modal-asset-badge" id="modal-asset-badge">XAU/USD</span>
+                        <span class="badge badge-gold" id="modal-ai-accuracy-badge"><i class="fa-solid fa-brain"></i>
+                            دقة الذكاء الاصطناعي: 97.4%</span>
+                    </div>
+                    <h3 id="modal-signal-title" style="margin-top:0.4rem;">شراء الذهب (XAU/USD) - صفقة يومية</h3>
+                </div>
+                <span class="modal-status-tag" id="modal-status-tag">نشطة</span>
+            </div>
+            <div class="modal-body">
+                <!-- Mini TV Chart for the Signal Details -->
+                <div id="modal-tradingview-chart" style="height: 300px; width: 100%; border-radius: 8px; margin-bottom: 1rem; overflow:hidden;"></div>
+                <div class="modal-grid-stats">
+                    <div class="modal-stat">
+                        <span class="lbl">سعر الدخول الموصى به:</span>
+                        <span class="val text-gold" id="modal-entry">4,000.00$</span>
+                    </div>
+                    <div class="modal-stat">
+                        <span class="lbl">هدف أرباح (TP1):</span>
+                        <span class="val text-success" id="modal-tp1">4,035.00$</span>
+                    </div>
+                    <div class="modal-stat">
+                        <span class="lbl">هدف أرباح (TP2):</span>
+                        <span class="val text-success" id="modal-tp2">4,070.00$</span>
+                    </div>
+                    <div class="modal-stat">
+                        <span class="lbl">هدف أرباح (TP3):</span>
+                        <span class="val text-success" id="modal-tp3">4,120.00$</span>
+                    </div>
+                    <div class="modal-stat">
+                        <span class="lbl">وقف الخسارة (SL):</span>
+                        <span class="val text-danger" id="modal-sl">3,970.00$</span>
+                    </div>
+                    <div class="modal-stat">
+                        <span class="lbl">نسبة العائد للمخاطرة:</span>
+                        <span class="val text-info" id="modal-rr">1 : 2.33</span>
+                    </div>
+                </div>
+
+                <!-- AI Dedicated Entry Explanation Box -->
+                <div class="ai-entry-explanation-box">
+                    <div class="ai-exp-header">
+                        <i class="fa-solid fa-robot text-gold fa-beat"></i>
+                        <h4>تحليل الذكاء الاصطناعي اللحظي: لماذا هذا السعر ممتاز جداً للدخول الآن؟</h4>
+                    </div>
+                    <p class="ai-exp-lead" id="modal-ai-lead-text">
+                        يؤكد محرك الذكاء الاصطناعي (AI Neural Scanner) بنسبة دقة **97.4%** أن السعر الحالي يمثل منطقة
+                        تجميع خوارزمية عالية القيمة (High Probability Order Block) توفر أفضل نسبة عائد مقابل المخاطرة.
+                    </p>
+
+                    <div class="modal-section-title"><i class="fa-solid fa-magnifying-glass-chart"></i> الأسباب الفنية
+                        والخوارزمية للدخول:</div>
+                    <ul class="modal-reasons-list" id="modal-reasons-list">
+                        <!-- Dynamic reasons -->
+                    </ul>
+
+                    <div class="modal-section-title"><i class="fa-solid fa-globe"></i> المحركات الاقتصادية وتأثير
+                        السياسات المالية:</div>
+                    <p class="modal-macro-desc" id="modal-macro-desc">
+                        تزايد توقعات التيسير النقدي الأمريكي وانخفاض عائدات السندات يزيد من تدفقات السيولة المؤسسية نحو
+                        الصفقة.
+                    </p>
+                </div>
+
+                <!-- Ask AI Interactive Q&A Widget -->
+                <div class="modal-ask-ai-widget">
+                    <div class="ask-ai-title">
+                        <i class="fa-solid fa-comments text-gold"></i>
+                        <span>استفسر من الذكاء الاصطناعي عن هذه الصفقة (Ask AI):</span>
+                    </div>
+                    <div class="ai-quick-questions">
+                        <button class="ai-q-btn" data-question="why-now">لماذا يوصي الـ AI بالدخول في هذا التوقيت
+                            تحديداً؟</button>
+                        <button class="ai-q-btn" data-question="risk">ما هي أقصى نسبة مخاطرة ينصح بها الـ AI؟</button>
+                        <button class="ai-q-btn" data-question="reverse">ماذا أفعل لو تحرك السعر عكس الاتجاه
+                            قليلاً؟</button>
+                    </div>
+                    <div class="ai-response-box" id="ai-response-box" style="display:none;">
+                        <!-- AI answer rendered here -->
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="modal-calc-apply-btn"><i class="fa-solid fa-calculator"></i> تطبيق
+                    على حاسبة اللوت</button>
+                <button class="btn btn-gold" id="modal-dismiss-btn">إغلاق التقرير</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Asset Selector Modal -->
+    <div class="modal-overlay" id="asset-selector-modal">
+        <div class="modal-card">
+            <button class="modal-close" id="asset-modal-close-btn">&times;</button>
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <span class="badge badge-gold"><i class="fa-solid fa-sliders"></i> تخصيص الأصول المظهورة</span>
+                    <h3>تحديد واختيار الأصول والعملات والأسهم للمتابعة الحية</h3>
+                </div>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;">
+                    اختر الأصول المرجوة لإظهار توصياتها ومراقبة أسعارها الحية في شريط البث ولوحة التحكم:
+                </p>
+
+                <!-- Search Input -->
+                <div class="form-group">
+                    <input type="text" id="asset-search-input" class="custom-input"
+                        placeholder="ابحث عن أصل مالى (مثلاً: فضة، EURUSD، إنفيديا، بتكوين...)" style="width:100%;">
+                </div>
+
+                <div class="asset-selection-grid" id="asset-selection-grid">
+                    <!-- Checkboxes populated via JS -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-gold" id="save-asset-selection-btn"><i class="fa-solid fa-check"></i> حفظ التحديد
+                    ومتابعة الأصول</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Settings & Control Panel Modal -->
+    <div class="modal-overlay" id="admin-modal">
+        <div class="modal-card modal-lg">
+            <button class="modal-close" id="admin-modal-close-btn">&times;</button>
+            
+            <!-- Login Screen -->
+            <div id="admin-login-screen" style="padding: 3rem 1rem; text-align: center;">
+                <i class="fa-solid fa-user-shield text-gold" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+                <h3 style="margin-bottom: 2rem;">تسجيل الدخول للإدارة</h3>
+                <div class="form-group" style="max-width: 300px; margin: 0 auto 1rem;">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="admin-login-user" class="form-control" placeholder="أدخل اسم المستخدم">
+                </div>
+                <div class="form-group" style="max-width: 300px; margin: 0 auto 1.5rem;">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="admin-login-pass" class="form-control" placeholder="أدخل كلمة المرور">
+                </div>
+                <button class="btn btn-primary" id="admin-login-submit" style="width: 100%; max-width: 300px;">تسجيل الدخول</button>
+                <p id="admin-login-error" class="text-danger" style="margin-top: 1rem; display: none;">بيانات الدخول غير صحيحة.</p>
+            </div>
+
+            <!-- Dashboard Screen (Hidden by default) -->
+            <div id="admin-dashboard-screen" style="display: none;">
+                <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+                        <div>
+                            <span class="badge badge-warning"><i class="fa-solid fa-user-shield"></i> لوحة التحكم
+                                والإدارة</span>
+                            <h3>إعدادات الأدمن ومحركات الذكاء الاصطناعي</h3>
+                        </div>
+                        <button class="btn btn-outline text-danger btn-sm" id="admin-logout-btn"
+                            style="margin-left: 2rem;">
+                            <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج (Logout)
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <!-- Admin Tabs Nav -->
+                <div class="admin-tabs-nav">
+                    <button class="admin-tab-btn active" data-tab="settings">إعدادات المنصة العامة</button>
+                    <button class="admin-tab-btn" data-tab="security"><i class="fa-solid fa-lock text-danger"></i> إعدادات الأمان</button>
+                    <button class="admin-tab-btn" data-tab="ai-engine"><i class="fa-solid fa-brain text-gold"></i>
+                        محركات AI & API (جيمناي & ChatGPT)</button>
+                    <button class="admin-tab-btn" data-tab="new-signal">إضافة توصية حية جديدة</button>
+                    <button class="admin-tab-btn" data-tab="news-flash">تحديث الخبر العاجل</button>
+                </div>
+
+                <!-- Tab 1: General Settings -->
+                <div class="admin-tab-content active" id="tab-settings">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="admin-market-override">تجاوز حالة السوق (Market Status Override):</label>
+                            <select id="admin-market-override" class="custom-input">
+                                <option value="auto" selected>تلقائي (حسب أيام وساعات التداول العالمية)</option>
+                                <option value="open">تعديل قسري: الأسواق مفتوحة 🟢</option>
+                                <option value="closed">تعديل قسري: الأسواق مغلقة 🔴</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="admin-ai-accuracy">نسبة دقة الذكاء الاصطناعي الافتراضية (%):</label>
+                            <input type="number" id="admin-ai-accuracy" class="custom-input" value="97.4" step="0.1"
+                                min="80" max="99.9">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="admin-scan-freq">تردد المسح التلقائي بالذكاء الاصطناعي:</label>
+                            <select id="admin-scan-freq" class="custom-input">
+                                <option value="60" selected>كل 1 دقيقة تلقائياً</option>
+                                <option value="300">كل 5 دقائق تلقائياً</option>
+                                <option value="manual">يدوي فقط (عند الضغط على Button)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="admin-gold-baseline">سعر الذهب المستهدف ($):</label>
+                            <input type="number" id="admin-gold-baseline" class="custom-input" value="4015.50"
+                                step="0.5">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Security Settings -->
+                <div class="admin-tab-content" id="tab-security">
+                    <div class="api-config-grid">
+                        <div class="api-card">
+                            <h4 class="text-danger"><i class="fa-solid fa-key"></i> تغيير بيانات الدخول</h4>
+                            <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1rem;">يمكنك تغيير كلمة المرور واسم المستخدم الخاصين بلوحة الإدارة من هنا.</p>
+                            <div class="form-group">
+                                <label>اسم المستخدم الجديد</label>
+                                <input type="text" class="form-control" id="admin-new-user" placeholder="مثال: admin">
+                            </div>
+                            <div class="form-group">
+                                <label>كلمة المرور الجديدة</label>
+                                <input type="password" class="form-control" id="admin-new-pass" placeholder="أدخل كلمة المرور الجديدة">
+                            </div>
+                            <button class="btn btn-outline text-danger" id="admin-change-pass-btn">تحديث بيانات الدخول</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Standalone Tab 2: Dedicated AI Engines & API Settings -->
+                <div class="admin-tab-content" id="tab-ai-engine">
+                    <div class="card"
+                        style="background:rgba(8,11,17,0.7); border:1px solid rgba(255,215,0,0.2); padding:1rem; margin-bottom:1rem;">
+                        <h4 style="color:var(--gold); font-size:0.95rem; margin-bottom:0.75rem;"><i
+                                class="fa-solid fa-microchip"></i> إعدادات محرك Google Gemini API</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="api-gemini-key">مفتاح API الخاص بـ Gemini (Gemini API Key):</label>
+                                <input type="password" id="api-gemini-key" class="custom-input"
+                                    placeholder="AIzaSy... (أدخل مفتاح Gemini هنا)">
+                            </div>
+                            <div class="form-group">
+                                <label for="api-gemini-model">موديل Gemini المختار:</label>
+                                <select id="api-gemini-model" class="custom-input">
+                                    <option value="gemini-1.5-flash" selected>Gemini 1.5 Flash (سريع ومستقر - موصى به)
+                                    </option>
+                                    <option value="gemini-2.0-flash">Gemini 2.0 Flash (الجيل الأحدث 2026)</option>
+                                    <option value="gemini-1.5-pro">Gemini 1.5 Pro (عالي الدقة والتحليل العميق)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card"
+                        style="background:rgba(8,11,17,0.7); border:1px solid rgba(0,176,255,0.2); padding:1rem; margin-bottom:1rem;">
+                        <h4 style="color:var(--info); font-size:0.95rem; margin-bottom:0.75rem;"><i
+                                class="fa-solid fa-brain"></i> إعدادات محرك OpenAI ChatGPT API</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="api-chatgpt-key">مفتاح API الخاص بـ ChatGPT (OpenAI API Key):</label>
+                                <input type="password" id="api-chatgpt-key" class="custom-input"
+                                    placeholder="sk-proj-... (أدخل مفتاح OpenAI هنا)">
+                            </div>
+                            <div class="form-group">
+                                <label for="api-chatgpt-model">موديل ChatGPT المختار:</label>
+                                <select id="api-chatgpt-model" class="custom-input">
+                                    <option value="gpt-4o" selected>GPT-4o (نموذج رائد ومتعدد الوسائط)</option>
+                                    <option value="gpt-4-turbo">GPT-4 Turbo (تحليل الاقتصاد الكلي)</option>
+                                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card"
+                        style="background:rgba(8,11,17,0.7); border:1px solid rgba(0,230,118,0.25); padding:1rem; margin-bottom:1rem;">
+                        <h4 style="color:var(--success); font-size:0.95rem; margin-bottom:0.75rem;"><i
+                                class="fa-solid fa-newspaper"></i> إعدادات محرك الأخبار الفورية Finnhub API</h4>
+                        <div class="form-group">
+                            <label for="api-finnhub-key">مفتاح Finnhub API للأخبار الحية (Finnhub API Key -
+                                اختياري):</label>
+                            <input type="password" id="api-finnhub-key" class="custom-input"
+                                placeholder="ct... (أدخل مفتاح Finnhub هنا لجلب الأخبار العالمية الحية)"
+                                style="width:100%;">
+                        </div>
+                    </div>
+
+                    <div class="card"
+                        style="background:rgba(8,11,17,0.7); border:1px solid rgba(255,215,0,0.3); padding:1rem; margin-bottom:1rem;">
+                        <h4 style="color:var(--gold); font-size:0.95rem; margin-bottom:0.75rem;"><i
+                                class="fa-solid fa-satellite-dish"></i> إعدادات الربط بالأسعار الحية (Twelve Data /
+                            Alpha Vantage / OANDA API)</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="api-twelvedata-key">مفتاح Twelve Data API Key (مجاني / اختياري):</label>
+                                <input type="password" id="api-twelvedata-key" class="custom-input"
+                                    placeholder="أدخل مفتاح Twelve Data API هنا...">
+                            </div>
+                            <div class="form-group">
+                                <label for="api-alphavantage-key">مفتاح Alpha Vantage API Key (مجاني / اختياري):</label>
+                                <input type="password" id="api-alphavantage-key" class="custom-input"
+                                    placeholder="أدخل مفتاح Alpha Vantage API هنا...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card"
+                        style="background:rgba(8,11,17,0.7); border:1px solid var(--bg-glass-border); padding:1rem;">
+                        <h4 style="color:var(--text-primary); font-size:0.95rem; margin-bottom:0.75rem;"><i
+                                class="fa-solid fa-gears"></i> قواعد محرك المسح AI Neural Scanner</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ai-min-confidence">الحد الأدنى لثقة الصفقة قبل الاعتماد (%):</label>
+                                <input type="number" id="ai-min-confidence" class="custom-input" value="95.0" min="80"
+                                    max="99">
+                            </div>
+                            <div class="form-group">
+                                <label for="ai-strategy-bias">استراتيجية مسح الـ AI:</label>
+                                <select id="ai-strategy-bias" class="custom-input">
+                                    <option value="balanced" selected>مزدوج (تحليل فني RSI/MACD + الأخبار وتصريحات
+                                        الفيدرالي)</option>
+                                    <option value="macro">تركيز على الفيدرالي والأخبار الكلية (Macro First)</option>
+                                    <option value="scalp">تركيز على الزخم الفني السريع (Technical First)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div
+                            style="display:flex; align-items:center; justify-content:space-between; margin-top:0.5rem;">
+                            <button class="btn btn-outline btn-sm" id="test-ai-api-btn">
+                                <i class="fa-solid fa-plug-circle-check text-gold"></i> فحص واختبار الاتصال بمحركات AI
+                            </button>
+                            <span class="badge badge-gold" id="api-status-indicator"><i
+                                    class="fa-solid fa-circle-check text-success"></i> جاهز ومتصل تلقائياً</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Create New Signal -->
+                <div class="admin-tab-content" id="tab-new-signal">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="new-sig-symbol">رمز الأصل (مثلاً: XAU/USD, NVDA, EUR/USD):</label>
+                            <input type="text" id="new-sig-symbol" class="custom-input" placeholder="XAU/USD">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-sig-type">نوع الصفقة:</label>
+                            <select id="new-sig-type" class="custom-input">
+                                <option value="BUY">شراء (BUY)</option>
+                                <option value="SELL">بيع (SELL)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="new-sig-category">التصنيف:</label>
+                            <select id="new-sig-category" class="custom-input">
+                                <option value="gold">الذهب والفضة والمعادن</option>
+                                <option value="oil">النفط والغاز والطاقة</option>
+                                <option value="forex">أزواج العملات الفوركس</option>
+                                <option value="stocks">الأسهم الأمريكية والمؤشرات</option>
+                                <option value="crypto">العملات الرقمية الكريبتو</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-sig-entry">سعر الدخول ($):</label>
+                            <input type="number" id="new-sig-entry" class="custom-input" placeholder="4000.00"
+                                step="0.01">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="new-sig-tp1">هدف أرباح (TP1):</label>
+                            <input type="number" id="new-sig-tp1" class="custom-input" placeholder="4035.00"
+                                step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-sig-sl">وقف الخسارة (SL):</label>
+                            <input type="number" id="new-sig-sl" class="custom-input" placeholder="3970.00" step="0.01">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-sig-reason">السبب الفني والخوارزمي للدخول:</label>
+                        <input type="text" id="new-sig-reason" class="custom-input"
+                            placeholder="اختراق خط المقاومة واكتمال نموذج الـ AI بنسبة 97.4%">
+                    </div>
+                </div>
+
+                <!-- Tab 3: Update Market Mover Flash News -->
+                <div class="admin-tab-content" id="tab-news-flash">
+                    <div class="form-group">
+                        <label for="admin-mover-title">عنوان محرك السوق الرئيسي:</label>
+                        <input type="text" id="admin-mover-title" class="custom-input"
+                            value="تصريحات أعضاء الفيدرالي الأمريكي والتضخم وتوترات الطاقة">
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-mover-desc">نص الخبر والمحرك الاقتصادي التفصيلي:</label>
+
+                        <textarea id="admin-mover-desc" class="custom-input"
+                            rows="4">الذهب يثبت فوق 4,000$ مدفوعاً بطلب الملاذات الآمنة وتزايد توقعات خفض الفائدة الأمريكية، بينما تواصل أسهم التكنولوجيا والبتكوين تسجيل أرباح مستمرة.</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-gold" id="save-admin-settings-btn"><i class="fa-solid fa-floppy-disk"></i> حفظ
+                    وتطبيق تعديلات الأدمن فوراً</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    
+    <!-- ============================================================ -->
+    <!-- AUTO-TRADING & BROKER BRIDGE MODAL -->
+    <!-- ============================================================ -->
+    <div class="modal" id="autotrade-modal">
+        <div class="modal-overlay" id="autotrade-modal-overlay"></div>
+        <div class="modal-content" style="max-width: 860px; max-height: 92vh; overflow-y: auto; background: var(--bg-dark-card); border: 1px solid var(--gold); box-shadow: 0 0 30px rgba(0,0,0,0.85);">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255,215,0,0.25); padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(255,215,0,0.15); display: flex; align-items: center; justify-content: center; color: var(--gold); font-size: 1.3rem;">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.25rem; color: var(--text-primary);">غرفة التداول الآلي وفتح الصفقات المباشر</h3>
+                        <span style="font-size: 0.8rem; color: var(--text-secondary);">ربط الحساب • إدارة المخاطر • تنفيذ فوري على MT4 / MT5</span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                    <button class="btn btn-outline btn-sm" id="at-pause-btn" style="border-color: #ff9800; color: #ff9800; padding: 0.35rem 0.75rem; font-size: 0.78rem;" title="إيقاف الصفقات الجديدة مع إبقاء الصفقات المفتوحة">
+                        <i class="fa-solid fa-pause"></i> إيقاف الصفقات الجديدة
+                    </button>
+                    <button class="btn btn-danger btn-sm" id="at-emergency-btn" style="background: #d32f2f; border-color: #d32f2f; color: #fff; padding: 0.35rem 0.75rem; font-size: 0.78rem;" title="إغلاق شامل وإيقاف طارئ فوري">
+                        <i class="fa-solid fa-triangle-exclamation"></i> إغلاق شامل + طوارئ
+                    </button>
+                    <label class="switch" style="margin:0;">
+                        <input type="checkbox" id="autotrade-master-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                    <span id="autotrade-master-status" class="badge badge-warning" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">متوقف 🔴</span>
+                    <button class="modal-close" id="autotrade-modal-close-btn" style="background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer;">&times;</button>
+                </div>
+            </div>
+
+            <div class="modal-body" style="padding: 1.25rem 1.5rem;">
+                <!-- Live Account Summary Banner -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem; margin-bottom: 1.25rem;">
+                    <div class="card" style="background: rgba(15,22,35,0.7); border: 1px solid rgba(255,215,0,0.2); padding: 0.9rem; border-radius: 10px; text-align: center;">
+                        <span style="font-size: 0.78rem; color: var(--text-secondary); display: block; margin-bottom: 0.3rem;">رصيد الحساب (Balance)</span>
+                        <strong id="at-balance-val" style="font-size: 1.35rem; color: var(--text-primary);">—</strong>
+                    </div>
+                    <div class="card" style="background: rgba(15,22,35,0.7); border: 1px solid rgba(0,230,118,0.2); padding: 0.9rem; border-radius: 10px; text-align: center;">
+                        <span style="font-size: 0.78rem; color: var(--text-secondary); display: block; margin-bottom: 0.3rem;">السيولة الحالية (Equity)</span>
+                        <strong id="at-equity-val" style="font-size: 1.35rem; color: var(--success);">—</strong>
+                    </div>
+                    <div class="card" style="background: rgba(15,22,35,0.7); border: 1px solid rgba(0,176,255,0.2); padding: 0.9rem; border-radius: 10px; text-align: center;">
+                        <span style="font-size: 0.78rem; color: var(--text-secondary); display: block; margin-bottom: 0.3rem;">الهامش المتاح (Free Margin)</span>
+                        <strong id="at-margin-val" style="font-size: 1.35rem; color: var(--info);">—</strong>
+                    </div>
+                    <div class="card" style="background: rgba(15,22,35,0.7); border: 1px solid rgba(255,215,0,0.3); padding: 0.9rem; border-radius: 10px; text-align: center;">
+                        <span style="font-size: 0.78rem; color: var(--text-secondary); display: block; margin-bottom: 0.3rem;">الربح العائم (Floating PnL)</span>
+                        <strong id="at-floating-pnl-val" style="font-size: 1.35rem; color: var(--gold);">$0.00</strong>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <div class="admin-tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+                    <button class="admin-tab-btn active" data-attab="positions"><i class="fa-solid fa-bolt text-gold"></i> 1. الصفقات الحية (<span id="at-open-count">0</span>)</button>
+                    <button class="admin-tab-btn" data-attab="risk"><i class="fa-solid fa-shield-halved"></i> 2. إدارة المخاطر واللوت</button>
+                    <button class="admin-tab-btn" data-attab="connect"><i class="fa-solid fa-plug"></i> 3. ربط MT5 والجسر</button>
+                    <button class="admin-tab-btn" data-attab="audit"><i class="fa-solid fa-list-check text-info"></i> 4. سجل التدقيق والمطابقة</button>
+                    <button class="admin-tab-btn" data-attab="history"><i class="fa-solid fa-clock-rotate-left"></i> 5. الأرشيف المغلق</button>
+                </div>
+
+                <!-- Tab 1: Risk Management & Lot Sizing -->
+                <div class="at-tab-content" id="attab-risk" style="display: none;">
+                    <div class="card" style="background: rgba(15,22,35,0.5); border: 1px solid rgba(255,215,0,0.2); padding: 1.25rem; border-radius: 10px;">
+                        <h4 style="color: var(--gold); font-size: 1rem; margin-bottom: 1rem;"><i class="fa-solid fa-sliders"></i> القواعد الصارمة لإدارة رأس المال (Risk Control):</h4>
+                        
+                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div class="form-group">
+                                <label style="display: block; margin-bottom: 0.4rem; font-size: 0.88rem;">نسبة المخاطرة لكل صفقة من رأس المال (% Risk):</label>
+                                <select id="at-risk-percent" class="custom-input" style="width:100%;">
+                                    <option value="0.5">0.5% (متحفظ جداً / حسابات كبيرة)</option>
+                                    <option value="1.0" selected>1.0% (النسبة المؤسسية الموصى بها 🛡️)</option>
+                                    <option value="1.5">1.5% (متوازن ذكي)</option>
+                                    <option value="2.0">2.0% (نشط / حسابات نمو)</option>
+                                    <option value="3.0">3.0% (أقصى مخاطرة مسموحة)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="display: block; margin-bottom: 0.4rem; font-size: 0.88rem;">سقف اللوت الأقصى المسموح بفتحه (Max Lot Cap):</label>
+                                <input type="number" id="at-max-lot" class="custom-input" value="0.50" step="0.01" min="0.01" max="10.0" style="width:100%;">
+                                <small style="color: var(--text-secondary); font-size: 0.75rem;">حماية إضافية: لن يفتح النظام أي صفقة تتجاوز هذا اللوت إطلاقاً.</small>
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div class="form-group">
+                                <label style="display: block; margin-bottom: 0.4rem; font-size: 0.88rem;">أقصى عدد صفقات مفتوحة في نفس اللحظة:</label>
+                                <select id="at-max-open" class="custom-input" style="width:100%;">
+                                    <option value="1">صفقة واحدة فقط (تركيز كامل)</option>
+                                    <option value="2">صفقتان معاً</option>
+                                    <option value="3" selected>3 صفقات كحد أقصى (موصى به)</option>
+                                    <option value="5">5 صفقات معاً</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="display: block; margin-bottom: 0.4rem; font-size: 0.88rem;">الحد الأدنى لجودة التوصية للدخول الآلي:</label>
+                                <select id="at-min-score" class="custom-input" style="width:100%;">
+                                    <option value="70">70 نقطة فما فوق (جميع الصفقات المتوازنة)</option>
+                                    <option value="75" selected>75 نقطة فما فوق (صفقات الجودة العالية A/A+ ⭐)</option>
+                                    <option value="80">80 نقطة فما فوق (الفرص النخبوية الذهبية فقط 🏆)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="background: rgba(0,230,118,0.08); border: 1px solid rgba(0,230,118,0.25); padding: 0.9rem; border-radius: 8px; margin-top: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <input type="checkbox" id="at-auto-be" checked style="width: 18px; height: 18px; cursor: pointer;">
+                                <label for="at-auto-be" style="font-weight: 700; color: var(--success); cursor: pointer;">تأمين الصفقة ونقل الوقف لسعر الدخول (Auto Break-Even) عند تحقيق الهدف الأول (TP1)</label>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" id="at-partial-tp1" checked style="width: 18px; height: 18px; cursor: pointer;">
+                                <label for="at-partial-tp1" style="font-weight: 700; color: var(--gold); cursor: pointer;">إغلاق 50% من حجم العقد عند تحقيق الهدف الأول (TP1) وحجز الأرباح فوراً في الرصيد</label>
+                            </div>
+                        </div>
+
+                        <!-- Asset Classes / Markets Filter Section -->
+                        <div style="background: rgba(0,176,255,0.05); border: 1px solid rgba(0,176,255,0.25); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
+                                <label style="font-weight: 700; color: var(--info); font-size: 0.92rem; display: flex; align-items: center; gap: 0.4rem;">
+                                    <i class="fa-solid fa-layer-group"></i> اختيار الأسواق والأصول للدخول التلقائي:
+                                </label>
+                                <span style="font-size: 0.76rem; color: var(--text-secondary);">اختر الأسواق التي ترغب بفتح صفقاتها آلياً عند توفر فرصة قوية</span>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
+                                <!-- Metals & Energy -->
+                                <label style="display: flex; align-items: center; gap: 0.6rem; background: rgba(15,22,35,0.7); border: 1px solid rgba(255,215,0,0.3); padding: 0.65rem 0.85rem; border-radius: 6px; cursor: pointer;">
+                                    <input type="checkbox" id="at-allow-metals" checked style="width: 18px; height: 18px; cursor: pointer;">
+                                    <div>
+                                        <div style="font-weight: 700; color: var(--gold); font-size: 0.85rem;"><i class="fa-solid fa-coins"></i> المعادن والطاقة</div>
+                                        <small style="color: var(--text-secondary); font-size: 0.72rem;">الذهب (XAU)، الفضة، النفط (USOIL)</small>
+                                    </div>
+                                </label>
+
+                                <!-- Forex Currencies -->
+                                <label style="display: flex; align-items: center; gap: 0.6rem; background: rgba(15,22,35,0.7); border: 1px solid rgba(0,176,255,0.3); padding: 0.65rem 0.85rem; border-radius: 6px; cursor: pointer;">
+                                    <input type="checkbox" id="at-allow-forex" checked style="width: 18px; height: 18px; cursor: pointer;">
+                                    <div>
+                                        <div style="font-weight: 700; color: var(--info); font-size: 0.85rem;"><i class="fa-solid fa-money-bill-transfer"></i> أزواج الفوركس</div>
+                                        <small style="color: var(--text-secondary); font-size: 0.72rem;">EURUSD, GBPUSD, USDJPY ...</small>
+                                    </div>
+                                </label>
+
+                                <!-- Stocks & Indices -->
+                                <label style="display: flex; align-items: center; gap: 0.6rem; background: rgba(15,22,35,0.7); border: 1px solid rgba(156,39,176,0.3); padding: 0.65rem 0.85rem; border-radius: 6px; cursor: pointer;">
+                                    <input type="checkbox" id="at-allow-stocks" checked style="width: 18px; height: 18px; cursor: pointer;">
+                                    <div>
+                                        <div style="font-weight: 700; color: #ba68c8; font-size: 0.85rem;"><i class="fa-solid fa-chart-line"></i> الأسهم والمؤشرات</div>
+                                        <small style="color: var(--text-secondary); font-size: 0.72rem;">NVDA, TSLA, AAPL, US30</small>
+                                    </div>
+                                </label>
+
+                                <!-- Crypto Assets -->
+                                <label style="display: flex; align-items: center; gap: 0.6rem; background: rgba(15,22,35,0.7); border: 1px solid rgba(255,152,0,0.3); padding: 0.65rem 0.85rem; border-radius: 6px; cursor: pointer;">
+                                    <input type="checkbox" id="at-allow-crypto" checked style="width: 18px; height: 18px; cursor: pointer;">
+                                    <div>
+                                        <div style="font-weight: 700; color: #ffb74d; font-size: 0.85rem;"><i class="fa-brands fa-bitcoin"></i> العملات المشفرة</div>
+                                        <small style="color: var(--text-secondary); font-size: 0.72rem;">BTCUSD, ETHUSD, SOLUSD</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-gold" id="save-at-config-btn" style="margin-top: 1.25rem; width: 100%;">
+                            <i class="fa-solid fa-floppy-disk"></i> حفظ قواعد إدارة المخاطر وتطبيقها فوراً
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Live Open Positions -->
+                <div class="at-tab-content active" id="attab-positions" style="display: block;">
+                    <div class="card" style="background: rgba(15,22,35,0.5); border: 1px solid rgba(255,215,0,0.2); padding: 1rem; border-radius: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <h4 style="color: var(--gold); font-size: 0.95rem; margin: 0;"><i class="fa-solid fa-bolt"></i> الصفقات النشطة قيد التنفيذ:</h4>
+                                <span class="badge badge-live" id="at-live-indicator">حي ومباشر 🟢</span>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button class="btn btn-sm btn-gold" id="at-scan-execute-btn" style="padding: 0.35rem 0.85rem; font-size: 0.8rem;">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> فحص السوق والدخول بالفرص القوية الآن
+                                </button>
+                                <button class="btn btn-sm btn-outline" id="at-test-trade-btn" style="border-color: var(--info); color: var(--info); padding: 0.35rem 0.85rem; font-size: 0.8rem;">
+                                    <i class="fa-solid fa-vial"></i> تجربة أمر فتح فوري (0.01 لوت)
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="custom-table" style="width:100%; text-align:center; font-size:0.85rem;">
+                                <thead>
+                                    <tr>
+                                        <th>التذكرة</th>
+                                        <th>الأصل</th>
+                                        <th>النوع</th>
+                                        <th>اللوت</th>
+                                        <th>الدخول</th>
+                                        <th>الحالي</th>
+                                        <th>الوقف (SL)</th>
+                                        <th>الهدف (TP1)</th>
+                                        <th>الأرباح ($)</th>
+                                        <th>إجراء</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="at-positions-tbody">
+                                    <tr><td colspan="10" style="padding: 2rem; color: var(--text-secondary);">لا توجد صفقات مفتوحة حالياً. عند توليد فرصة جديدة تستوفي شروطك سيتم فتحها هنا آلياً.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Broker Connection Link -->
+                <div class="at-tab-content" id="attab-connect" style="display: none;">
+                    <div class="card" style="background: rgba(15,22,35,0.5); border: 1px solid rgba(0,176,255,0.25); padding: 1.25rem; border-radius: 10px;">
+                        
+                        <!-- Live Bridge Status Banner -->
+                        <div id="at-bridge-status-banner" style="background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.3); padding: 0.85rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-satellite-dish text-success fa-beat"></i>
+                                <span>حالة الجسر الحي: <strong id="at-bridge-status-text" class="text-success">مربوط بالبروكر ومحدث تلقائياً 🟢</strong></span>
+                            </div>
+                            <span id="at-last-sync-badge" class="badge badge-gold" style="font-size: 0.75rem;">تحديث لحظي كل 1 ثانية</span>
+                        </div>
+
+                        <h4 style="color: var(--info); font-size: 1rem; margin-bottom: 1rem;"><i class="fa-solid fa-server"></i> بيانات الاتصال المباشر بمنصة MetaTrader (MT5 / MT4):</h4>
+
+                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div class="form-group">
+                                <label style="display: block; margin-bottom: 0.4rem; font-size: 0.88rem;">سيرفر الوسيط (Broker Server):</label>
+                                <input type="text" id="at-server-name" class="custom-input" placeholder="مثال: JustMarkets-Demo أو Exness-Trial" value="" placeholder="مثال: JustMarkets-Demo أو Exness-Trial" style="width:100%;">
+                            </div>
+
+                            <div class="form-group">
+                                <label style="display: block; margin-bottom: 0.4rem; font-size: 0.88rem;">رقم الحساب (Login / Account #):</label>
+                                <input type="text" id="at-login-num" class="custom-input" placeholder="مثال: 10982341" value="" placeholder="مثال: 2001944351" style="width:100%;">
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div class="form-group">
+                                <label style="display: block; margin-bottom: 0.4rem; font-size: 0.88rem;">كلمة مرور التداول (Trading Password):</label>
+                                <input type="password" id="at-password" class="custom-input" placeholder="أدخل كلمة مرور الحساب..." value="" placeholder="أدخل كلمة مرور التداول..." style="width:100%;">
+                            </div>
+
+                            <div class="form-group">
+                                <label style="display: block; margin-bottom: 0.4rem; font-size: 0.88rem;">نوع بيئة التداول:</label>
+                                <select id="at-trading-mode" class="custom-input" style="width:100%;">
+                                    <option value="demo" selected>🧪 حساب تجريبي ديمو (آمن للتجربة)</option>
+                                    <option value="real">⚠️ حساب حقيقي بأموال حقيقية (Live Real)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1.1rem; background: rgba(0,176,255,0.06); border: 1px solid rgba(0,176,255,0.2); padding: 0.85rem; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.3rem;">
+                                <label style="font-size: 0.88rem; color: var(--info); font-weight: bold;">
+                                    <i class="fa-solid fa-cloud-bolt"></i> مفتاح الربط السحابي المباشر (MetaApi Cloud Token):
+                                </label>
+                                <a href="https://app.metaapi.cloud" target="_blank" style="font-size: 0.75rem; color: var(--gold); text-decoration: underline; font-weight: 600;">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i> إنشاء توكن مجاني من app.metaapi.cloud
+                                </a>
+                            </div>
+                            <input type="password" id="at-metaapi-token" class="custom-input" placeholder="أدخل MetaApi Token هنا للربط السحابي 24/7 بدون تشغيل كمبيوتر..." style="width:100%; border-color: rgba(0,176,255,0.4);">
+                            <small style="color: var(--text-secondary); font-size: 0.76rem; display: block; margin-top: 0.3rem;">
+                                يتيح لموقعك الاتصال السحابي المباشر بسيرفر JustMarkets-Demo وسحب أرقام رصيدك وصفقاتك لحظة بلحظة.
+                            </small>
+                        </div>
+
+
+
+                        <!-- EA Download & Easy Setup Guide -->
+                        <div style="background: rgba(15,22,35,0.75); border: 1px dashed var(--gold); padding: 1.1rem; border-radius: 10px; margin-top: 1.25rem;">
+                            <h4 style="color: var(--gold); font-size: 0.95rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-robot"></i> الربط المباشر اللحظي عبر إكسبرت (MarketPulse Bridge EA):
+                            </h4>
+                            <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 0.85rem;">
+                                لسحب رصيدك الحقيقي (40,000$ وأي أرباح إضافية) والصفقات المفتوحة من هاتفك إلى الموقع تلقائياً، قم بتحميل ملف الإكسبرت ووضعه على الميتاتريدر، وسيقوم بالمزامنة الحية كل ثانية!
+                            </p>
+                            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                <a href="http://187.77.174.215:8081/api/mt5/download-ea" class="btn btn-gold btn-sm" download style="text-decoration:none;">
+                                    <i class="fa-solid fa-file-arrow-down"></i> تحميل إكسبرت MarketPulse_Bridge.mq5
+                                </a>
+                                <button type="button" class="btn btn-outline btn-sm" onclick="navigator.clipboard.writeText('http://187.77.174.215:8081'); alert('✅ تم نسخ رابط السيرفر المباشر:\nhttp://187.77.174.215:8081\nضعه في Tools -> Options -> Expert Advisors -> Allow WebRequest');">
+                                    <i class="fa-solid fa-copy"></i> نسخ رابط WebRequest URL
+                                </button>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-outline" id="save-at-connect-btn" style="margin-top: 1rem; width: 100%; border-color: var(--info); color: var(--info);">
+                            <i class="fa-solid fa-plug-circle-check"></i> حفظ ومزامنة الاتصال بسيرفر الميتاتريدر
+                        </button>
+                    </div>
+                </div>
+
+                
+                <!-- Tab 4: Audit Logs & Reconciliation -->
+                <div class="at-tab-content" id="attab-audit" style="display: none;">
+                    <div class="card" style="background: rgba(15,22,35,0.5); border: 1px solid var(--border-color); padding: 1rem; border-radius: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <h4 style="color: var(--info); font-size: 0.95rem; margin: 0;"><i class="fa-solid fa-list-check"></i> سجل القرارات والمطابقة الحية (Reconciliation & Audit Logs):</h4>
+                            <span class="badge badge-live">محدث تلقائياً</span>
+                        </div>
+                        <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
+                            <table class="custom-table" style="width:100%; text-align:center; font-size:0.8rem;">
+                                <thead>
+                                    <tr>
+                                        <th>الوقت</th>
+                                        <th>الحدث</th>
+                                        <th>الأصل</th>
+                                        <th>التذكرة</th>
+                                        <th>التفاصيل والسبب</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="at-audit-tbody">
+                                    <tr><td colspan="5" style="padding: 2rem; color: var(--text-secondary);">جاري تحميل سجل التدقيق...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 5: Trade History -->
+                <div class="at-tab-content" id="attab-history" style="display: none;">
+                    <div class="card" style="background: rgba(15,22,35,0.5); border: 1px solid var(--border-color); padding: 1rem; border-radius: 10px;">
+                        <div class="table-responsive">
+                            <table class="custom-table" style="width:100%; text-align:center; font-size:0.85rem;">
+                                <thead>
+                                    <tr>
+                                        <th>التذكرة</th>
+                                        <th>الأصل</th>
+                                        <th>النوع</th>
+                                        <th>اللوت</th>
+                                        <th>سعر الدخول</th>
+                                        <th>سعر الإغلاق</th>
+                                        <th>النتيجة</th>
+                                        <th>الربح / الخسارة</th>
+                                        <th>الوقت</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="at-history-tbody">
+                                    <tr><td colspan="9" style="padding: 2rem; color: var(--text-secondary);">لا توجد صفقات مغلقة في هذه الجلسة حتى الآن.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <h2>MARKETPULSE <span class="accent-gold">FX</span></h2>
+                <p>المنصة المتقدمة لتتبع حركة الأسواق المالية والذهب والنفط والعملات ومحركات السياسة النقدية.</p>
+            </div>
+            <div class="footer-disclaimer">
+                <i class="fa-solid fa-triangle-exclamation text-warning"></i>
+                <p>إخلاء مسؤولية: التداول في أسواق الفوركس والسلع ينطوي على مخاطرة عالية لرأس المال. التوصيات الواردة في
+                    هذا الموقع هي لأغراض تعليمية وتحليلية ولا تعتبر استشارة مالية مباشرة.</p>
+            </div>
+            <div class="footer-copy">
+                &copy; 2026 MARKETPULSE FX - جميع الحقوق محفوظة.
+            </div>
+        </div>
+    </footer>
+
+    <!-- TradingView Script Library -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+
+    <!-- Main JavaScript App Logic -->
+    <script src="app.js?v=45"></script>
+
+    <!-- AI Assistant Floating Widget -->
+    <div id="ai-assistant-widget" class="ai-widget-container">
+        <button id="ai-toggle-btn" class="ai-toggle-btn">
+            <i class="fa-solid fa-robot"></i>
+        </button>
+        <div id="ai-chat-window" class="ai-chat-window hidden">
+            <div class="ai-chat-header">
+                <h4><i class="fa-solid fa-robot"></i> المساعد الذكي AI</h4>
+                <button id="ai-close-btn" class="ai-close-btn">&times;</button>
+            </div>
+            <div id="ai-chat-messages" class="ai-chat-messages">
+                <div class="ai-message bot">
+                    <p>مرحباً أيها المتداول! أنا المساعد الذكي الخاص بك. كيف يمكنني مساعدتك اليوم؟</p>
+                </div>
+            </div>
+            <div class="ai-chat-input-area">
+                <input type="text" id="ai-chat-input" placeholder="اكتب سؤالك هنا..." autocomplete="off">
+                <button id="ai-chat-send"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

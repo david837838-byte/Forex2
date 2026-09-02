@@ -7,4 +7,3 @@ __pycache__/
 *.db-shm
 autotrade_state.json
 autotrade_state.json.tmp
-
