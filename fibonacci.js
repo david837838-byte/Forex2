@@ -170,12 +170,13 @@
             open: Number(candle.open),
             high: Number(candle.high),
             low: Number(candle.low),
-            close: Number(candle.close)
+            close: Number(candle.close),
+            volume: Number(candle.volume) || 0
         })).filter(candle => [candle.open, candle.high, candle.low, candle.close].every(Number.isFinite));
 
         if (visible.length < 10) return '';
 
-        const padding = { top: 18, right: 94, bottom: 30, left: 12 };
+        const padding = { top: 26, right: 122, bottom: 36, left: 14 };
         const plotWidth = width - padding.left - padding.right;
         const plotHeight = height - padding.top - padding.bottom;
         const fibValues = [...Object.values(analysis.levels), ...Object.values(analysis.extensions)].filter(Number.isFinite);
@@ -196,28 +197,53 @@
         };
 
         const parts = [
-            `<svg class="fibonacci-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="مخطط شموع مع مستويات فيبوناتشي" xmlns="http://www.w3.org/2000/svg">`,
-            `<rect width="${width}" height="${height}" fill="#0b111d"/>`
+            `<svg class="fibonacci-svg" data-visible-count="${visible.length}" data-plot-left="${padding.left}" data-plot-right="${padding.left + plotWidth}" data-plot-top="${padding.top}" data-plot-bottom="${padding.top + plotHeight}" viewBox="0 0 ${width} ${height}" role="img" aria-label="مخطط شموع تفاعلي مع مستويات فيبوناتشي" xmlns="http://www.w3.org/2000/svg">`,
+            '<defs>',
+            '<linearGradient id="fib-chart-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#101b2c"/><stop offset="100%" stop-color="#070c15"/></linearGradient>',
+            '<linearGradient id="fib-golden-zone" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ffb300" stop-opacity="0.05"/><stop offset="55%" stop-color="#ffd740" stop-opacity="0.2"/><stop offset="100%" stop-color="#ff8f00" stop-opacity="0.08"/></linearGradient>',
+            '<filter id="fib-glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>',
+            `<clipPath id="fib-plot-clip"><rect x="${padding.left}" y="${padding.top}" width="${plotWidth}" height="${plotHeight}"/></clipPath>`,
+            '</defs>',
+            `<rect width="${width}" height="${height}" rx="8" fill="url(#fib-chart-bg)"/>`,
+            `<rect x="${padding.left + plotWidth}" y="0" width="${padding.right}" height="${height}" fill="#080e18" opacity="0.78"/>`
         ];
 
+        for (let grid = 0; grid <= 5; grid++) {
+            const gridY = padding.top + (plotHeight * grid / 5);
+            const gridPrice = maxPrice - ((maxPrice - minPrice) * grid / 5);
+            parts.push(`<line x1="${padding.left}" y1="${gridY}" x2="${padding.left + plotWidth}" y2="${gridY}" stroke="#2c3d54" stroke-width="1" opacity="0.38"/>`);
+            parts.push(`<text x="${padding.left + plotWidth - 6}" y="${gridY - 4}" fill="#607d8b" font-size="9" text-anchor="end" font-family="Arial, sans-serif">${format(gridPrice)}</text>`);
+        }
         for (let grid = 0; grid <= 4; grid++) {
-            const gridY = padding.top + (plotHeight * grid / 4);
-            parts.push(`<line x1="${padding.left}" y1="${gridY}" x2="${padding.left + plotWidth}" y2="${gridY}" stroke="#243247" stroke-width="1" opacity="0.45"/>`);
+            const gridX = padding.left + (plotWidth * grid / 4);
+            parts.push(`<line x1="${gridX}" y1="${padding.top}" x2="${gridX}" y2="${padding.top + plotHeight}" stroke="#26384d" stroke-width="1" opacity="0.28"/>`);
         }
 
         const goldenTop = Math.min(y(analysis.goldenZoneLow), y(analysis.goldenZoneHigh));
         const goldenHeight = Math.abs(y(analysis.goldenZoneLow) - y(analysis.goldenZoneHigh));
-        parts.push(`<rect data-zone="golden" x="${padding.left}" y="${goldenTop}" width="${plotWidth}" height="${goldenHeight}" fill="#ffd700" opacity="0.11"/>`);
+        parts.push(`<rect data-zone="golden" x="${padding.left}" y="${goldenTop}" width="${plotWidth}" height="${goldenHeight}" fill="url(#fib-golden-zone)" stroke="#ffc107" stroke-width="0.7" stroke-opacity="0.34"/>`);
+        parts.push(`<text x="${padding.left + 8}" y="${goldenTop + 14}" fill="#ffd54f" font-size="10" font-weight="700" font-family="Arial, sans-serif">GOLDEN ZONE 50–61.8%</text>`);
 
+        const maxVolume = Math.max(...visible.map(candle => candle.volume), 1);
+        const volumeHeight = plotHeight * 0.14;
+        parts.push(`<g data-layer="volume" clip-path="url(#fib-plot-clip)" opacity="0.24">`);
+        visible.forEach((candle, position) => {
+            const barHeight = (candle.volume / maxVolume) * volumeHeight;
+            const bullish = candle.close >= candle.open;
+            parts.push(`<rect x="${x(position) - candleWidth / 2}" y="${padding.top + plotHeight - barHeight}" width="${candleWidth}" height="${barHeight}" fill="${bullish ? '#00e676' : '#ff5252'}"/>`);
+        });
+        parts.push('</g>');
+
+        parts.push('<g data-layer="candles" clip-path="url(#fib-plot-clip)">');
         visible.forEach((candle, position) => {
             const candleX = x(position);
             const bullish = candle.close >= candle.open;
             const color = bullish ? '#00e676' : '#ff5252';
             const bodyY = Math.min(y(candle.open), y(candle.close));
             const bodyHeight = Math.max(1.2, Math.abs(y(candle.open) - y(candle.close)));
-            parts.push(`<line x1="${candleX}" y1="${y(candle.high)}" x2="${candleX}" y2="${y(candle.low)}" stroke="${color}" stroke-width="1"/>`);
-            parts.push(`<rect x="${candleX - candleWidth / 2}" y="${bodyY}" width="${candleWidth}" height="${bodyHeight}" fill="${color}" rx="0.8"/>`);
+            parts.push(`<g data-candle-position="${position}"><line x1="${candleX}" y1="${y(candle.high)}" x2="${candleX}" y2="${y(candle.low)}" stroke="${color}" stroke-width="1"/><rect x="${candleX - candleWidth / 2}" y="${bodyY}" width="${candleWidth}" height="${bodyHeight}" fill="${color}" rx="0.8"/></g>`);
         });
+        parts.push('</g>');
 
         const lineDefinitions = [
             ['0', '#64b5f6', '0%'],
@@ -233,24 +259,33 @@
             if (!Number.isFinite(price)) return;
             const lineY = y(price);
             const emphasized = KEY_LEVELS.includes(key);
-            parts.push(`<line data-level="${key}" x1="${padding.left}" y1="${lineY}" x2="${padding.left + plotWidth}" y2="${lineY}" stroke="${color}" stroke-width="${emphasized ? 1.7 : 1}" stroke-dasharray="${emphasized ? '7 4' : '4 5'}" opacity="0.9"/>`);
-            parts.push(`<text x="${padding.left + plotWidth + 6}" y="${lineY + 4}" fill="${color}" font-size="11" font-family="Arial, sans-serif">${label} ${format(price)}</text>`);
+            parts.push(`<line data-level="${key}" x1="${padding.left}" y1="${lineY}" x2="${padding.left + plotWidth}" y2="${lineY}" stroke="${color}" stroke-width="${emphasized ? 1.8 : 1}" stroke-dasharray="${emphasized ? '8 4' : '4 5'}" opacity="0.92"${emphasized ? ' filter="url(#fib-glow)"' : ''}/>`);
+            parts.push(`<rect x="${padding.left + plotWidth + 5}" y="${lineY - 10}" width="${padding.right - 10}" height="19" rx="4" fill="${color}" opacity="${emphasized ? '0.18' : '0.09'}"/>`);
+            parts.push(`<text x="${padding.left + plotWidth + 10}" y="${lineY + 4}" fill="${color}" font-size="10.5" font-weight="${emphasized ? '700' : '500'}" font-family="Arial, sans-serif">${label}</text>`);
+            parts.push(`<text x="${width - 6}" y="${lineY + 4}" fill="${color}" font-size="10.5" text-anchor="end" font-family="Arial, sans-serif">${format(price)}</text>`);
         });
 
         Object.entries(analysis.extensions).forEach(([key, price]) => {
             const lineY = y(price);
             parts.push(`<line data-extension="${key}" x1="${padding.left}" y1="${lineY}" x2="${padding.left + plotWidth}" y2="${lineY}" stroke="#ba68c8" stroke-width="1" stroke-dasharray="3 5" opacity="0.8"/>`);
-            parts.push(`<text x="${padding.left + plotWidth + 6}" y="${lineY + 4}" fill="#ce93d8" font-size="10" font-family="Arial, sans-serif">E${key}% ${format(price)}</text>`);
+            parts.push(`<text x="${padding.left + plotWidth + 9}" y="${lineY + 4}" fill="#ce93d8" font-size="9.5" font-family="Arial, sans-serif">EXT ${key}%</text>`);
+            parts.push(`<text x="${width - 6}" y="${lineY + 4}" fill="#ce93d8" font-size="9.5" text-anchor="end" font-family="Arial, sans-serif">${format(price)}</text>`);
         });
 
         if (analysis.lowIndex >= visibleStart && analysis.highIndex >= visibleStart) {
-            parts.push(`<line data-wave="anchor" x1="${xForIndex(analysis.lowIndex)}" y1="${y(analysis.swingLow)}" x2="${xForIndex(analysis.highIndex)}" y2="${y(analysis.swingHigh)}" stroke="#29b6f6" stroke-width="2" opacity="0.9"/>`);
-            parts.push(`<circle cx="${xForIndex(analysis.lowIndex)}" cy="${y(analysis.swingLow)}" r="4" fill="#29b6f6"/>`);
-            parts.push(`<circle cx="${xForIndex(analysis.highIndex)}" cy="${y(analysis.swingHigh)}" r="4" fill="#29b6f6"/>`);
+            parts.push(`<line data-wave="anchor" x1="${xForIndex(analysis.lowIndex)}" y1="${y(analysis.swingLow)}" x2="${xForIndex(analysis.highIndex)}" y2="${y(analysis.swingHigh)}" stroke="#29b6f6" stroke-width="2.2" opacity="0.95" filter="url(#fib-glow)"/>`);
+            parts.push(`<circle cx="${xForIndex(analysis.lowIndex)}" cy="${y(analysis.swingLow)}" r="4.5" fill="#07111e" stroke="#29b6f6" stroke-width="2"/>`);
+            parts.push(`<circle cx="${xForIndex(analysis.highIndex)}" cy="${y(analysis.swingHigh)}" r="4.5" fill="#07111e" stroke="#29b6f6" stroke-width="2"/>`);
+            parts.push(`<text x="${xForIndex(analysis.lowIndex)}" y="${y(analysis.swingLow) + 16}" fill="#81d4fa" font-size="9" text-anchor="middle" font-weight="700">SWING LOW</text>`);
+            parts.push(`<text x="${xForIndex(analysis.highIndex)}" y="${y(analysis.swingHigh) - 9}" fill="#81d4fa" font-size="9" text-anchor="middle" font-weight="700">SWING HIGH</text>`);
         }
 
         const currentPrice = visible[visible.length - 1].close;
-        parts.push(`<line data-current-price="true" x1="${padding.left}" y1="${y(currentPrice)}" x2="${padding.left + plotWidth}" y2="${y(currentPrice)}" stroke="#00b0ff" stroke-width="1.2" opacity="0.9"/>`);
+        const currentY = y(currentPrice);
+        parts.push(`<line data-current-price="true" x1="${padding.left}" y1="${currentY}" x2="${padding.left + plotWidth}" y2="${currentY}" stroke="#00b0ff" stroke-width="1.3" stroke-dasharray="2 3" opacity="0.95"/>`);
+        parts.push(`<rect x="${padding.left + plotWidth + 5}" y="${currentY - 10}" width="${padding.right - 10}" height="20" rx="4" fill="#0277bd"/>`);
+        parts.push(`<text x="${padding.left + plotWidth + 10}" y="${currentY + 4}" fill="#fff" font-size="9.5" font-weight="700">NOW</text>`);
+        parts.push(`<text x="${width - 6}" y="${currentY + 4}" fill="#fff" font-size="10" text-anchor="end" font-weight="700">${format(currentPrice)}</text>`);
 
         const timePositions = [0, Math.floor((visible.length - 1) / 2), visible.length - 1];
         timePositions.forEach(position => {
@@ -261,6 +296,8 @@
                 : '';
             parts.push(`<text x="${x(position)}" y="${height - 8}" fill="#78909c" font-size="10" text-anchor="middle" font-family="Arial, sans-serif">${label}</text>`);
         });
+
+        parts.push(`<g data-crosshair="true" visibility="hidden" pointer-events="none"><line data-crosshair-x x1="0" y1="${padding.top}" x2="0" y2="${padding.top + plotHeight}" stroke="#b0bec5" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.75"/><line data-crosshair-y x1="${padding.left}" y1="0" x2="${padding.left + plotWidth}" y2="0" stroke="#b0bec5" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.55"/></g>`);
 
         parts.push('</svg>');
         return parts.join('');

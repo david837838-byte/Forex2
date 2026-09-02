@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=8">
     <!-- TradingView Core Script -->
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 </head>
@@ -592,7 +592,21 @@
                                 <h4><i class="fa-solid fa-wave-square"></i> فيبوناتشي الحي على الأصل المختار</h4>
                                 <p>يتغير تلقائيًا مع العملة أو المعدن أو الطاقة أو السهم ومع الإطار الزمني</p>
                             </div>
-                            <span class="badge badge-outline" id="main-fibonacci-status">جارٍ التحليل…</span>
+                            <div class="fibonacci-header-actions">
+                                <div class="fibonacci-timeframes" aria-label="اختيار الإطار الزمني">
+                                    <button type="button" data-fib-tf="15m">15M</button>
+                                    <button type="button" data-fib-tf="1h" class="active">1H</button>
+                                    <button type="button" data-fib-tf="4h">4H</button>
+                                    <button type="button" data-fib-tf="1d">1D</button>
+                                </div>
+                                <span class="badge badge-outline" id="main-fibonacci-status">جارٍ التحليل…</span>
+                            </div>
+                        </div>
+                        <div class="fibonacci-metrics" id="main-fibonacci-metrics">
+                            <div><span>اتجاه الموجة</span><strong id="main-fib-direction">--</strong></div>
+                            <div><span>قمة الموجة</span><strong id="main-fib-high">--</strong></div>
+                            <div><span>قاع الموجة</span><strong id="main-fib-low">--</strong></div>
+                            <div><span>المستوى الأقرب</span><strong id="main-fib-nearest">--</strong></div>
                         </div>
                         <div id="main-fibonacci-chart" class="fibonacci-chart-canvas" aria-live="polite"></div>
                         <div class="fibonacci-chart-legend">
@@ -793,6 +807,12 @@
                             <p>آخر موجة مع مستويات الارتداد والمنطقة الذهبية وأهداف الامتداد</p>
                         </div>
                         <span class="badge badge-outline" id="modal-fibonacci-status">جارٍ التحليل…</span>
+                    </div>
+                    <div class="fibonacci-metrics" id="modal-fibonacci-metrics">
+                        <div><span>اتجاه الموجة</span><strong id="modal-fib-direction">--</strong></div>
+                        <div><span>قمة الموجة</span><strong id="modal-fib-high">--</strong></div>
+                        <div><span>قاع الموجة</span><strong id="modal-fib-low">--</strong></div>
+                        <div><span>المستوى الأقرب</span><strong id="modal-fib-nearest">--</strong></div>
                     </div>
                     <div id="modal-fibonacci-chart" class="fibonacci-chart-canvas" aria-live="polite"></div>
                     <div class="fibonacci-chart-legend">
@@ -1586,8 +1606,8 @@
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
     <!-- Market analysis engines -->
-    <script src="fibonacci.js?v=2"></script>
-    <script src="app.js?v=49"></script>
+    <script src="fibonacci.js?v=3"></script>
+    <script src="app.js?v=50"></script>
 
     <!-- AI Assistant Floating Widget -->
     <div id="ai-assistant-widget" class="ai-widget-container">

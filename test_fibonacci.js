@@ -73,5 +73,10 @@ assert.ok(svg.includes('data-zone="golden"'));
 assert.ok(svg.includes('data-level="61.8"'));
 assert.ok(svg.includes('data-extension="161.8"'));
 assert.ok(svg.includes('class="fibonacci-svg"'));
+assert.ok(svg.includes('data-layer="volume"'));
+assert.ok(svg.includes('data-crosshair="true"'));
+assert.ok(svg.includes('GOLDEN ZONE 50–61.8%'));
+assert.ok(svg.includes('SWING HIGH'));
+assert.ok(svg.includes('>NOW<'));
 
 console.log('Fibonacci analysis tests passed.');

@@ -2018,6 +2018,98 @@ Evaluate objectively. Return ONLY valid JSON:
     // ============================================================
     let fibonacciChartRequestId = 0;
 
+    function fibonacciPrice(value) {
+        if (!Number.isFinite(Number(value))) return '--';
+        const number = Number(value);
+        const decimals = Math.abs(number) < 10 ? 5 : Math.abs(number) < 1000 ? 3 : 2;
+        return number.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    }
+
+    function updateFibonacciMetrics(prefix, fib) {
+        const direction = document.getElementById(`${prefix}-fib-direction`);
+        const high = document.getElementById(`${prefix}-fib-high`);
+        const low = document.getElementById(`${prefix}-fib-low`);
+        const nearest = document.getElementById(`${prefix}-fib-nearest`);
+        if (!direction || !high || !low || !nearest) return;
+
+        if (!fib?.valid) {
+            direction.textContent = high.textContent = low.textContent = nearest.textContent = '--';
+            direction.style.color = '#eceff1';
+            nearest.style.color = '#eceff1';
+            return;
+        }
+
+        direction.textContent = fib.direction === 'bullish' ? 'صاعدة ↑' : 'هابطة ↓';
+        direction.style.color = fib.direction === 'bullish' ? '#00e676' : '#ff5252';
+        high.textContent = fibonacciPrice(fib.swingHigh);
+        low.textContent = fibonacciPrice(fib.swingLow);
+        nearest.textContent = `${fib.nearestLevel}% • ${fibonacciPrice(fib.nearestPrice)}`;
+        nearest.style.color = fib.inGoldenZone ? '#ffd740' : '#eceff1';
+    }
+
+    function attachFibonacciChartInteractions(container, candles) {
+        const svg = container.querySelector('.fibonacci-svg');
+        if (!svg) return;
+
+        const visible = candles.slice(-80).map(candle => ({
+            time: Number(candle.time),
+            open: Number(candle.open),
+            high: Number(candle.high),
+            low: Number(candle.low),
+            close: Number(candle.close),
+            volume: Number(candle.volume) || 0
+        })).filter(candle => [candle.open, candle.high, candle.low, candle.close].every(Number.isFinite));
+        if (!visible.length) return;
+
+        const tooltip = document.createElement('div');
+        tooltip.className = 'fibonacci-chart-tooltip';
+        container.appendChild(tooltip);
+
+        const crosshair = svg.querySelector('[data-crosshair="true"]');
+        const crosshairX = svg.querySelector('[data-crosshair-x]');
+        const crosshairY = svg.querySelector('[data-crosshair-y]');
+        const plotLeft = Number(svg.dataset.plotLeft);
+        const plotRight = Number(svg.dataset.plotRight);
+        const plotTop = Number(svg.dataset.plotTop);
+        const plotBottom = Number(svg.dataset.plotBottom);
+
+        svg.addEventListener('pointermove', event => {
+            const rect = svg.getBoundingClientRect();
+            const viewBox = svg.viewBox.baseVal;
+            const viewX = (event.clientX - rect.left) * (viewBox.width / rect.width);
+            const viewY = (event.clientY - rect.top) * (viewBox.height / rect.height);
+            if (viewX < plotLeft || viewX > plotRight || viewY < plotTop || viewY > plotBottom) {
+                crosshair?.setAttribute('visibility', 'hidden');
+                tooltip.style.display = 'none';
+                return;
+            }
+
+            const rawPosition = Math.floor(((viewX - plotLeft) / (plotRight - plotLeft)) * visible.length);
+            const position = Math.max(0, Math.min(visible.length - 1, rawPosition));
+            const candle = visible[position];
+            const candleX = plotLeft + ((position + 0.5) / visible.length) * (plotRight - plotLeft);
+            crosshair?.setAttribute('visibility', 'visible');
+            crosshairX?.setAttribute('x1', candleX);
+            crosshairX?.setAttribute('x2', candleX);
+            crosshairY?.setAttribute('y1', viewY);
+            crosshairY?.setAttribute('y2', viewY);
+
+            const milliseconds = candle.time < 100000000000 ? candle.time * 1000 : candle.time;
+            const date = Number.isFinite(milliseconds) ? new Date(milliseconds).toLocaleString('ar') : '--';
+            const change = candle.close - candle.open;
+            const changeClass = change >= 0 ? 'up' : 'down';
+            tooltip.innerHTML = `<strong>${date}</strong><br>O ${fibonacciPrice(candle.open)} &nbsp; H ${fibonacciPrice(candle.high)}<br>L ${fibonacciPrice(candle.low)} &nbsp; C <span class="${changeClass}">${fibonacciPrice(candle.close)}</span><br>Vol ${Math.round(candle.volume).toLocaleString('en-US')}`;
+            tooltip.style.display = 'block';
+            const localX = event.clientX - rect.left;
+            tooltip.style.left = localX > rect.width * 0.58 ? '12px' : `${Math.min(rect.width - 220, localX + 16)}px`;
+        });
+
+        svg.addEventListener('pointerleave', () => {
+            crosshair?.setAttribute('visibility', 'hidden');
+            tooltip.style.display = 'none';
+        });
+    }
+
     async function renderFibonacciChart(sig) {
         const container = document.getElementById('modal-fibonacci-chart');
         const status = document.getElementById('modal-fibonacci-status');
@@ -2026,6 +2118,7 @@ Evaluate objectively. Return ONLY valid JSON:
         const requestId = ++fibonacciChartRequestId;
         container.innerHTML = '<div class="fibonacci-chart-loading"><i class="fa-solid fa-spinner fa-spin"></i>&nbsp; يتم تحميل الشموع وحساب فيبوناتشي…</div>';
         status.textContent = 'جارٍ التحليل…';
+        updateFibonacciMetrics('modal', null);
 
         const timeframeMap = { scalping: '15m', daytrade: '1h', swing: '4h', hedger: '1d', all: '1h' };
         const timeframe = sig.analysisTimeframe || timeframeMap[sig.timeframe] || '1h';
@@ -2052,6 +2145,8 @@ Evaluate objectively. Return ONLY valid JSON:
 
             sig.fibonacci = fib;
             container.innerHTML = svg;
+            updateFibonacciMetrics('modal', fib);
+            attachFibonacciChartInteractions(container, candles);
             const direction = fib.direction === 'bullish' ? 'موجة صاعدة' : 'موجة هابطة';
             const proximity = fib.inGoldenZone ? 'داخل المنطقة الذهبية' : `الأقرب ${fib.nearestLevel}%`;
             status.textContent = `${direction} • ${proximity} • ${timeframe.toUpperCase()}`;
@@ -2059,6 +2154,7 @@ Evaluate objectively. Return ONLY valid JSON:
         } catch (error) {
             if (requestId !== fibonacciChartRequestId) return;
             container.innerHTML = `<div class="fibonacci-chart-error"><i class="fa-solid fa-triangle-exclamation"></i>&nbsp; ${error.message}</div>`;
+            updateFibonacciMetrics('modal', null);
             status.textContent = 'غير متوفر حاليًا';
             status.className = 'badge badge-outline';
         }
@@ -2501,6 +2597,7 @@ Evaluate objectively. Return ONLY valid JSON:
         container.innerHTML = '<div class="fibonacci-chart-loading"><i class="fa-solid fa-spinner fa-spin"></i>&nbsp; يتم رسم مستويات فيبوناتشي الحية…</div>';
         status.textContent = `${assetKey} • ${timeframe.toUpperCase()} • جارٍ التحليل`;
         status.className = 'badge badge-outline';
+        updateFibonacciMetrics('main', null);
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/ohlcv?symbol=${encodeURIComponent(assetKey)}&timeframe=${encodeURIComponent(timeframe)}`);
@@ -2523,6 +2620,8 @@ Evaluate objectively. Return ONLY valid JSON:
             if (!svg) throw new Error('تعذر إنشاء الرسم');
 
             container.innerHTML = svg;
+            updateFibonacciMetrics('main', fib);
+            attachFibonacciChartInteractions(container, candles);
             const direction = fib.direction === 'bullish' ? 'صاعدة' : 'هابطة';
             const zone = fib.inGoldenZone ? 'السعر داخل المنطقة الذهبية' : `أقرب مستوى ${fib.nearestLevel}%`;
             status.textContent = `${assetKey} • موجة ${direction} • ${zone} • ${timeframe.toUpperCase()}`;
@@ -2530,6 +2629,7 @@ Evaluate objectively. Return ONLY valid JSON:
         } catch (error) {
             if (requestId !== mainFibonacciRequestId) return;
             container.innerHTML = `<div class="fibonacci-chart-error"><i class="fa-solid fa-triangle-exclamation"></i>&nbsp; ${error.message}</div>`;
+            updateFibonacciMetrics('main', null);
             status.textContent = `${assetKey} • فيبوناتشي غير متوفر حاليًا`;
             status.className = 'badge badge-outline';
         }
@@ -2645,6 +2745,19 @@ Evaluate objectively. Return ONLY valid JSON:
         renderMainFibonacciChart(sym, currentChartTfAi);
         await syncChartAI(sym, currentChartTfAi);
     }));
+
+    document.querySelectorAll('[data-fib-tf]').forEach(button => {
+        button.addEventListener('click', async event => {
+            const timeframe = event.currentTarget.getAttribute('data-fib-tf');
+            const tradingViewIntervals = { '15m': '15', '1h': '60', '4h': '240', '1d': 'D' };
+            currentChartTfAi = timeframe;
+            currentChartTfTv = tradingViewIntervals[timeframe] || '60';
+            document.querySelectorAll('[data-fib-tf]').forEach(item => item.classList.toggle('active', item === event.currentTarget));
+            renderMainFibonacciChart(currentChartSymbol, currentChartTfAi);
+            loadChart(currentChartSymbol, currentChartTfTv);
+            await syncChartAI(currentChartSymbol, currentChartTfAi);
+        });
+    });
 
     document.querySelectorAll('.chart-tf-btn').forEach(btn => {
         btn.addEventListener('click', async e => {
