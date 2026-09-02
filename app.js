@@ -2475,6 +2475,65 @@ Evaluate objectively. Return ONLY valid JSON:
     let currentChartSymbol = 'OANDA:XAUUSD';
     let currentChartTfTv = '60';
     let currentChartTfAi = '1h';
+    let mainFibonacciRequestId = 0;
+
+    function chartSymbolToAssetKey(symbol) {
+        let clean = symbol
+            .replace('OANDA:', '')
+            .replace('TVC:', '')
+            .replace('FX:', '')
+            .replace('BINANCE:', '')
+            .replace('CAPITALCOM:', '')
+            .replace('NASDAQ:', '')
+            .replace('USDT', 'USD');
+        if (clean === 'SILVER') clean = 'XAGUSD';
+        if (clean === 'NAS100') clean = 'US100';
+        return clean;
+    }
+
+    async function renderMainFibonacciChart(symbol, timeframe) {
+        const container = document.getElementById('main-fibonacci-chart');
+        const status = document.getElementById('main-fibonacci-status');
+        if (!container || !status) return;
+
+        const requestId = ++mainFibonacciRequestId;
+        const assetKey = chartSymbolToAssetKey(symbol);
+        container.innerHTML = '<div class="fibonacci-chart-loading"><i class="fa-solid fa-spinner fa-spin"></i>&nbsp; يتم رسم مستويات فيبوناتشي الحية…</div>';
+        status.textContent = `${assetKey} • ${timeframe.toUpperCase()} • جارٍ التحليل`;
+        status.className = 'badge badge-outline';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/ohlcv?symbol=${encodeURIComponent(assetKey)}&timeframe=${encodeURIComponent(timeframe)}`);
+            const payload = await response.json();
+            if (requestId !== mainFibonacciRequestId) return;
+            if (!response.ok || payload.status !== 'success' || !Array.isArray(payload.data) || payload.data.length < 10) {
+                throw new Error('لا توجد شموع كافية لهذا الأصل والإطار الزمني');
+            }
+
+            const candles = payload.data;
+            const highs = candles.map(candle => Number(candle.high));
+            const lows = candles.map(candle => Number(candle.low));
+            const closes = candles.map(candle => Number(candle.close));
+            const atr = TA.calcAtr(highs, lows, closes, 14);
+            const fib = FibonacciAnalysis.analyze(highs, lows, closes[closes.length - 1], atr);
+            if (!fib.valid) throw new Error(fib.reason || 'تعذر تحديد موجة موثوقة');
+
+            const width = Math.max(360, Math.round(container.getBoundingClientRect().width || 1000));
+            const svg = FibonacciAnalysis.buildChartSvg(candles, fib, width, 460);
+            if (!svg) throw new Error('تعذر إنشاء الرسم');
+
+            container.innerHTML = svg;
+            const direction = fib.direction === 'bullish' ? 'صاعدة' : 'هابطة';
+            const zone = fib.inGoldenZone ? 'السعر داخل المنطقة الذهبية' : `أقرب مستوى ${fib.nearestLevel}%`;
+            status.textContent = `${assetKey} • موجة ${direction} • ${zone} • ${timeframe.toUpperCase()}`;
+            status.className = `badge ${fib.confluence === 'NEUTRAL' ? 'badge-outline' : 'badge-gold'}`;
+        } catch (error) {
+            if (requestId !== mainFibonacciRequestId) return;
+            container.innerHTML = `<div class="fibonacci-chart-error"><i class="fa-solid fa-triangle-exclamation"></i>&nbsp; ${error.message}</div>`;
+            status.textContent = `${assetKey} • فيبوناتشي غير متوفر حاليًا`;
+            status.className = 'badge badge-outline';
+        }
+    }
 
     async function syncChartAI(symbol, aiTfStr) {
         try {
@@ -2583,6 +2642,7 @@ Evaluate objectively. Return ONLY valid JSON:
     chartBtns.forEach(btn => btn.addEventListener('click', async e => {
         const sym = e.currentTarget.getAttribute('data-symbol');
         loadChart(sym, currentChartTfTv);
+        renderMainFibonacciChart(sym, currentChartTfAi);
         await syncChartAI(sym, currentChartTfAi);
     }));
 
@@ -2593,6 +2653,7 @@ Evaluate objectively. Return ONLY valid JSON:
             currentChartTfTv = e.currentTarget.getAttribute('data-tv');
             currentChartTfAi = e.currentTarget.getAttribute('data-tf');
             loadChart(currentChartSymbol, currentChartTfTv);
+            renderMainFibonacciChart(currentChartSymbol, currentChartTfAi);
             await syncChartAI(currentChartSymbol, currentChartTfAi);
         });
     });
@@ -2793,7 +2854,11 @@ Evaluate objectively. Return ONLY valid JSON:
     fetchCalendarData();
     initCalc();
 
-    setTimeout(() => { loadChart('OANDA:XAUUSD'); syncChartAI('OANDA:XAUUSD', currentChartTfAi); }, 300);
+    setTimeout(() => {
+        loadChart('OANDA:XAUUSD');
+        renderMainFibonacciChart('OANDA:XAUUSD', currentChartTfAi);
+        syncChartAI('OANDA:XAUUSD', currentChartTfAi);
+    }, 300);
 
     document.querySelectorAll('.calendar-actions button[data-impact]').forEach(btn => {
         btn.addEventListener('click', e => {

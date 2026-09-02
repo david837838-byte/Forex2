@@ -2310,6 +2310,21 @@ input:checked + .slider:before {
     border: 1px solid rgba(255, 215, 0, 0.25);
     border-radius: 10px;
     background: rgba(9, 15, 26, 0.92);
+    box-shadow: 0 0 22px rgba(255, 215, 0, 0.08);
+}
+
+.main-fibonacci-chart {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.24);
+    background: linear-gradient(180deg, rgba(11, 17, 29, 0.98), rgba(15, 22, 35, 0.96));
+}
+
+.main-fibonacci-chart .fibonacci-chart-canvas {
+    min-height: 420px;
+}
+
+.main-comparison-title {
+    padding: 0 1.25rem;
 }
 
 .fibonacci-chart-header {
@@ -2382,6 +2397,18 @@ input:checked + .slider:before {
 .fib-zone { background: rgba(255, 215, 0, 0.45); }
 .fib-extension { background: #ba68c8; }
 .fib-wave { background: #29b6f6; }
+
+.comparison-chart-title {
+    margin: 0.95rem 0 0.55rem;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.comparison-chart-title i {
+    margin-left: 0.3rem;
+    color: var(--info);
+}
 
 @media (max-width: 600px) {
     .fibonacci-chart-header { align-items: flex-start; flex-direction: column; }
