@@ -7,9 +7,9 @@ Wants=network-online.target
 Type=simple
 User=marketpulse
 Group=marketpulse
-WorkingDirectory=/opt/marketpulse
-EnvironmentFile=/opt/marketpulse/.env
-ExecStart=/opt/marketpulse/.venv/bin/gunicorn --workers 1 --threads 8 --timeout 120 --bind 0.0.0.0:8081 wsgi:app
+WorkingDirectory=/var/www/Forex2
+EnvironmentFile=/var/www/Forex2/.env
+ExecStart=/var/www/Forex2/.venv/bin/gunicorn --workers 1 --threads 8 --timeout 120 --bind 0.0.0.0:8081 wsgi:app
 Restart=always
 RestartSec=5
 

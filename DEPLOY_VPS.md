@@ -4,21 +4,21 @@
 
 ## 1. تجهيز الملفات والبيئة
 
-انسخ ملفات المشروع إلى `/opt/marketpulse`، ثم نفّذ على الـVPS:
+انسخ ملفات المشروع إلى `/var/www/Forex2`، ثم نفّذ على الـVPS:
 
 ```bash
 sudo apt update
 sudo apt install -y python3-venv python3-pip ufw
-sudo useradd --system --home /opt/marketpulse --shell /usr/sbin/nologin marketpulse || true
-sudo chown -R marketpulse:marketpulse /opt/marketpulse
-sudo -u marketpulse python3 -m venv /opt/marketpulse/.venv
-sudo -u marketpulse /opt/marketpulse/.venv/bin/pip install -r /opt/marketpulse/requirements.txt
+sudo useradd --system --home /var/www/Forex2 --shell /usr/sbin/nologin marketpulse || true
+sudo chown -R marketpulse:marketpulse /var/www/Forex2
+sudo -u marketpulse python3 -m venv /var/www/Forex2/.venv
+sudo -u marketpulse /var/www/Forex2/.venv/bin/pip install -r /var/www/Forex2/requirements.txt
 ```
 
 انسخ `.env.example` إلى `.env`، وأنشئ سرًا جديدًا بدل القيمة الافتراضية:
 
 ```bash
-cp /opt/marketpulse/.env.example /opt/marketpulse/.env
+cp /var/www/Forex2/.env.example /var/www/Forex2/.env
 openssl rand -hex 32
 ```
 
@@ -36,7 +36,7 @@ sudo ufw status
 ## 3. تشغيل الخدمة تلقائيًا
 
 ```bash
-sudo cp /opt/marketpulse/marketpulse.service.example /etc/systemd/system/marketpulse.service
+sudo cp /var/www/Forex2/marketpulse.service.example /etc/systemd/system/marketpulse.service
 sudo systemctl daemon-reload
 sudo systemctl enable --now marketpulse
 sudo systemctl status marketpulse --no-pager
