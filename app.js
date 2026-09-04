@@ -2890,7 +2890,9 @@ Evaluate objectively. Return ONLY valid JSON:
                 statusElement.textContent = 'تعذر آخر تحديث — نحتفظ بآخر بيانات موثوقة';
                 statusElement.className = 'calendar-live-status stale';
             } else if (calendarMeta.lastUpdated) {
-                const updatedAt = new Date(calendarMeta.lastUpdated * 1000).toLocaleTimeString('ar-LB', { hour: '2-digit', minute: '2-digit' });
+                const updatedAt = new Date(calendarMeta.lastUpdated * 1000).toLocaleTimeString('en-GB', {
+                    hour: '2-digit', minute: '2-digit', hour12: false
+                });
                 statusElement.textContent = `● مباشر • آخر تحديث ${updatedAt}`;
                 statusElement.className = 'calendar-live-status live';
             }
@@ -2917,8 +2919,8 @@ Evaluate objectively. Return ONLY valid JSON:
             if (ev.datetime) {
                 const eventDate = new Date(ev.datetime);
                 if (!Number.isNaN(eventDate.getTime())) {
-                    dateLabel = eventDate.toLocaleString('ar-LB', {
-                        month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+                    dateLabel = eventDate.toLocaleString('en-GB', {
+                        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false
                     });
                 }
             }
