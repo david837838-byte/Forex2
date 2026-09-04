@@ -131,26 +131,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let newsData = getDefaultNewsData();
-    let calendarData = getDefaultCalendarData();
+    let calendarData = [];
+    let calendarMeta = { lastUpdated: 0, stale: false, error: null };
+    let currentCalendarImpact = 'all';
 
     async function fetchCalendarData() {
         try {
-            const res = await fetch(`${API_BASE_URL}/api/calendar`, { cache: 'no-cache' });
+            const res = await fetch(`${API_BASE_URL}/api/calendar?_=${Date.now()}`, { cache: 'no-store' });
             if (res.ok) {
                 const data = await res.json();
-                if (data.status === 'success' && data.calendar && data.calendar.length > 0) {
+                if (data.status === 'success' && Array.isArray(data.calendar)) {
                     calendarData = data.calendar;
-                    renderCalendar();
+                    calendarMeta = {
+                        lastUpdated: Number(data.last_updated || data.timestamp || Date.now() / 1000),
+                        stale: Boolean(data.stale),
+                        error: data.error || null
+                    };
+                    renderCalendar(currentCalendarImpact);
                     return;
                 }
             }
         } catch(e) {
             console.warn("Calendar API fetch fallback:", e);
+            calendarMeta.stale = true;
+            calendarMeta.error = e.message;
         }
-        if (!calendarData || calendarData.length === 0) {
-            calendarData = getDefaultCalendarData();
-        }
-        renderCalendar();
+        renderCalendar(currentCalendarImpact);
     }
 
     async function fetchLiveNews() {
@@ -650,7 +656,8 @@ Evaluate objectively. Return ONLY valid JSON:
                 const isRelevant = evCurrency === 'USD' || assetKey.includes(evCurrency);
                 if (!isRelevant) continue;
 
-                const evTime = new Date(ev.date + ' ' + (ev.time || '00:00'));
+                const evTime = ev.datetime ? new Date(ev.datetime) : new Date(`${ev.date} ${ev.time || '00:00'}`);
+                if (Number.isNaN(evTime.getTime())) continue;
                 const diffMin = (evTime - now) / (1000 * 60);
 
                 // If major high-impact news (NFP/CPI/Interest Rate) within 15 minutes
@@ -2866,42 +2873,79 @@ Evaluate objectively. Return ONLY valid JSON:
     // ============================================================
     // CALENDAR
     // ============================================================
-    function renderCalendar() {
+    function escapeCalendarText(value) {
+        return String(value ?? '').replace(/[&<>'"]/g, character => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        })[character]);
+    }
+
+    function renderCalendar(impactFilter = currentCalendarImpact) {
         if (!calendarTbody) return;
+        currentCalendarImpact = impactFilter;
         
         const currencyFlags = { 'USD': '🇺🇸 USD', 'EUR': '🇪🇺 EUR', 'GBP': '🇬🇧 GBP', 'JPY': '🇯🇵 JPY', 'CAD': '🇨🇦 CAD', 'AUD': '🇦🇺 AUD', 'NZD': '🇳🇿 NZD', 'CHF': '🇨🇭 CHF', 'CNY': '🇨🇳 CNY' };
+        const statusElement = document.getElementById('calendar-live-status');
+        if (statusElement) {
+            if (calendarMeta.stale) {
+                statusElement.textContent = 'تعذر آخر تحديث — نحتفظ بآخر بيانات موثوقة';
+                statusElement.className = 'calendar-live-status stale';
+            } else if (calendarMeta.lastUpdated) {
+                const updatedAt = new Date(calendarMeta.lastUpdated * 1000).toLocaleTimeString('ar-LB', { hour: '2-digit', minute: '2-digit' });
+                statusElement.textContent = `● مباشر • آخر تحديث ${updatedAt}`;
+                statusElement.className = 'calendar-live-status live';
+            }
+        }
+
+        const filteredEvents = (calendarData || []).filter(event => impactFilter !== 'high' || event.impact === 'High');
         
-        if (calendarData.length === 0) {
-            calendarTbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted" style="padding: 2rem;">جارٍ تحميل الأجندة الاقتصادية الحية...</td></tr>`;
+        if (filteredEvents.length === 0) {
+            const message = calendarMeta.stale
+                ? 'تعذر تحديث الأجندة حاليًا. لن نعرض أحداثًا قديمة على أنها حية.'
+                : 'لا توجد أحداث متوسطة أو عالية التأثير متبقية اليوم أو قادمة ضمن الأجندة الحالية.';
+            calendarTbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted" style="padding: 2rem;">${message}</td></tr>`;
             return;
         }
 
-        calendarTbody.innerHTML = calendarData.slice(0, 15).map(ev => {
+        calendarTbody.innerHTML = filteredEvents.slice(0, 20).map(ev => {
             const impClass = ev.impact === 'High' ? 'high-impact-row' : '';
             const badgeClass = ev.impact === 'High' ? 'badge-live' : 'badge-warning';
             const badgeText = ev.impact === 'High' ? 'عالي 🔴' : 'متوسط 🟡';
-            
-            const curr = currencyFlags[ev.country] || ev.country;
+            const released = ev.status === 'released';
+            const eventTitle = String(ev.title || 'حدث اقتصادي');
+            const curr = currencyFlags[ev.country] || escapeCalendarText(ev.country);
+            let dateLabel = `${escapeCalendarText(ev.date).slice(0, 10)} ${escapeCalendarText(ev.time)}`;
+            if (ev.datetime) {
+                const eventDate = new Date(ev.datetime);
+                if (!Number.isNaN(eventDate.getTime())) {
+                    dateLabel = eventDate.toLocaleString('ar-LB', {
+                        month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+                    });
+                }
+            }
+            const timingBadge = released
+                ? '<span class="calendar-event-state released">صدر/انتهى</span>'
+                : '<span class="calendar-event-state upcoming">قادم</span>';
             
             // Basic effect logic mapping
             let effect = 'ترقب التأثير (AI)';
-            if (ev.country === 'USD' && ev.title.includes('CPI')) effect = 'مؤثر جداً على الدولار والذهب';
-            if (ev.country === 'USD' && ev.title.includes('Non-Farm')) effect = 'وظائف النون-فارم (سيولة عنيفة)';
-            if (ev.title.includes('Rate')) effect = 'قرار فـائـدة (تأثير مباشر)';
+            if (ev.country === 'USD' && eventTitle.includes('CPI')) effect = 'مؤثر جداً على الدولار والذهب';
+            if (ev.country === 'USD' && eventTitle.includes('Non-Farm')) effect = 'وظائف النون-فارم (سيولة عنيفة)';
+            if (eventTitle.includes('Rate')) effect = 'قرار فـائـدة (تأثير مباشر)';
+            if (released) effect = `صدر الحدث • ${effect}`;
             
-            const act = ev.actual || '—';
-            const fc = ev.forecast || '—';
-            const pr = ev.previous || '—';
+            const act = escapeCalendarText(ev.actual || '—');
+            const fc = escapeCalendarText(ev.forecast || '—');
+            const pr = escapeCalendarText(ev.previous || '—');
             
-            return `<tr class="${impClass}">
-                <td>${ev.date.slice(0,5)} ${ev.time}</td>
+            return `<tr class="${impClass} ${released ? 'calendar-past-row' : 'calendar-upcoming-row'}">
+                <td><div class="calendar-event-time">${dateLabel}</div>${timingBadge}</td>
                 <td>${curr}</td>
-                <td style="font-size:0.9rem;">${ev.title}</td>
+                <td style="font-size:0.9rem;">${escapeCalendarText(eventTitle)}</td>
                 <td><span class="badge ${badgeClass}">${badgeText}</span></td>
                 <td class="${act !== '—' ? 'text-success font-bold' : ''}">${act}</td>
                 <td>${fc}</td>
                 <td>${pr}</td>
-                <td style="font-size:0.78rem;color:var(--text-secondary);">${effect}</td>
+                <td style="font-size:0.78rem;color:var(--text-secondary);">${escapeCalendarText(effect)}</td>
             </tr>`;
         }).join('');
     }
@@ -2974,6 +3018,7 @@ Evaluate objectively. Return ONLY valid JSON:
     renderNews();
     renderCalendar();
     fetchCalendarData();
+    setInterval(fetchCalendarData, 60000);
     initCalc();
 
     setTimeout(() => {

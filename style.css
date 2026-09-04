@@ -2277,6 +2277,63 @@ input:checked + .slider:before {
 /* ============================================================
    TRADINGVIEW CHART STYLING & CONTAINER SIZES
 ============================================================ */
+.calendar-live-status {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    margin-top: 0.35rem;
+    padding: 0.22rem 0.52rem;
+    border: 1px solid rgba(120, 144, 156, 0.25);
+    border-radius: 999px;
+    color: var(--text-secondary);
+    background: rgba(15, 22, 35, 0.72);
+    font-size: 0.7rem;
+}
+
+.calendar-live-status.live {
+    border-color: rgba(0, 230, 118, 0.35);
+    color: #69f0ae;
+}
+
+.calendar-live-status.stale {
+    border-color: rgba(255, 193, 7, 0.38);
+    color: #ffd54f;
+}
+
+.calendar-event-time {
+    direction: ltr;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.calendar-event-state {
+    display: inline-block;
+    margin-top: 0.22rem;
+    padding: 0.12rem 0.35rem;
+    border-radius: 999px;
+    font-size: 0.62rem;
+    font-weight: 800;
+}
+
+.calendar-event-state.upcoming {
+    color: #69f0ae;
+    background: rgba(0, 230, 118, 0.11);
+}
+
+.calendar-event-state.released {
+    color: #b0bec5;
+    background: rgba(144, 164, 174, 0.1);
+}
+
+.calendar-past-row {
+    opacity: 0.72;
+}
+
+.calendar-upcoming-row td:first-child {
+    border-right: 2px solid rgba(0, 230, 118, 0.6);
+}
+
 .chart-container-card {
     min-height: 650px;
     display: flex;

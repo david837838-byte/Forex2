@@ -5,6 +5,7 @@ import time
 import threading
 import json
 import urllib.request
+from datetime import datetime, timezone
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import database
@@ -50,6 +51,7 @@ CORS(app, resources={r'/api/*': {'origins': CORS_ORIGINS}}, max_age=86400)
 
 FETCH_INTERVAL = 6  # Fetch fresh TradingView prices every 6 seconds cleanly!
 MACRO_FETCH_INTERVAL = 60 # Fetch news every 60 seconds
+CALENDAR_FETCH_INTERVAL = 300  # Reload the economic source every five minutes.
 OHLCV_CACHE_TTL = 10  # Protect Yahoo from duplicate requests while keeping the active candle fresh.
 cache_lock = threading.RLock()
 
@@ -62,6 +64,11 @@ ohlcv_cache = {}
 
 news_cache = []
 calendar_cache = []
+calendar_meta = {
+    'last_success': 0.0,
+    'last_error': None,
+    'source': 'Forex Factory weekly calendar'
+}
 macro_cache = {
     'fedBias': 'neutral',
     'fedBiasLabel': 'محايد (Neutral)',
@@ -226,6 +233,53 @@ def fetch_macro_news():
             macro_cache['overallSentiment'] = 'neutral'
 
 
+def parse_calendar_datetime(date_str, time_str):
+    """Parse the calendar feed's UTC date/time into an aware datetime."""
+    normalized_time = (time_str or '').strip().lower().replace(' ', '')
+    estimated = normalized_time in ('', 'all day', 'allday', 'tentative')
+    try:
+        if estimated:
+            parsed = datetime.strptime(date_str.strip(), '%m-%d-%Y').replace(hour=12)
+        else:
+            parsed = datetime.strptime(f'{date_str.strip()} {normalized_time}', '%m-%d-%Y %I:%M%p')
+        return parsed.replace(tzinfo=timezone.utc), estimated
+    except (TypeError, ValueError):
+        return None, estimated
+
+
+def relevant_calendar_events(events, now_utc=None):
+    """Return upcoming events first, followed by today's recently released events."""
+    now_utc = now_utc or datetime.now(timezone.utc)
+    upcoming = []
+    recent_today = []
+
+    for original in events:
+        event = dict(original)
+        event_dt = None
+        if event.get('datetime'):
+            try:
+                event_dt = datetime.fromisoformat(event['datetime'].replace('Z', '+00:00'))
+            except (TypeError, ValueError):
+                event_dt = None
+        if event_dt is None:
+            event_dt, estimated = parse_calendar_datetime(event.get('date', ''), event.get('time', ''))
+            event['timeEstimated'] = estimated
+        if event_dt is None:
+            continue
+
+        event['datetime'] = event_dt.isoformat().replace('+00:00', 'Z')
+        if event_dt >= now_utc:
+            event['status'] = 'upcoming'
+            upcoming.append((event_dt, event))
+        elif event_dt.date() == now_utc.date():
+            event['status'] = 'released'
+            recent_today.append((event_dt, event))
+
+    upcoming.sort(key=lambda item: item[0])
+    recent_today.sort(key=lambda item: item[0], reverse=True)
+    return [event for _, event in upcoming + recent_today]
+
+
 def fetch_calendar():
     try:
         req = urllib.request.Request("https://nfs.faireconomy.media/ff_calendar_thisweek.xml", headers={"User-Agent": "Mozilla/5.0"})
@@ -242,22 +296,33 @@ def fetch_calendar():
             impact = event.findtext("impact") or ""
             forecast = event.findtext("forecast") or ""
             previous = event.findtext("previous") or ""
+            actual = event.findtext("actual") or ""
+            url = event.findtext("url") or ""
             
             # Filter only High and Medium impact to keep UI clean
             if impact in ["High", "Medium"]:
+                event_dt, estimated = parse_calendar_datetime(date_str, time_str)
                 events.append({
                     "title": title,
                     "country": country,
                     "date": date_str,
                     "time": time_str,
                     "impact": impact,
+                    "actual": actual,
                     "forecast": forecast,
-                    "previous": previous
+                    "previous": previous,
+                    "url": url,
+                    "datetime": event_dt.isoformat().replace('+00:00', 'Z') if event_dt else None,
+                    "timeEstimated": estimated
                 })
         with cache_lock:
             calendar_cache.clear()
             calendar_cache.extend(events)
+            calendar_meta['last_success'] = time.time()
+            calendar_meta['last_error'] = None
     except Exception as e:
+        with cache_lock:
+            calendar_meta['last_error'] = str(e)
         print(f"[CALENDAR ERROR] {e}")
 
 def background_tradingview_worker():
@@ -268,7 +333,7 @@ def background_tradingview_worker():
             fetch_tradingview_live_prices()
             if macro_timer % MACRO_FETCH_INTERVAL == 0:
                 fetch_macro_news()
-            if macro_timer % 900 == 0:
+            if macro_timer % CALENDAR_FETCH_INTERVAL == 0:
                 fetch_calendar()
         except Exception as e:
             print(f"Worker exception: {e}")
@@ -426,11 +491,17 @@ def get_macro():
 @app.route('/api/calendar', methods=['GET'])
 def get_calendar():
     with cache_lock:
-        cal = list(calendar_cache)
+        cal = relevant_calendar_events(list(calendar_cache))
+        meta = dict(calendar_meta)
     return jsonify({
         'status': 'success',
         'timestamp': time.time(),
-        'calendar': cal
+        'last_updated': meta['last_success'],
+        'source': meta['source'],
+        'stale': bool(meta['last_error']) or not bool(meta['last_success']),
+        'error': meta['last_error'],
+        'timezone': 'UTC',
+        'calendar': cal[:30]
     })
 
 @app.route('/api/health', methods=['GET'])
