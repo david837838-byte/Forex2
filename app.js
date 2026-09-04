@@ -2110,15 +2110,17 @@ Evaluate objectively. Return ONLY valid JSON:
         });
     }
 
-    async function renderFibonacciChart(sig) {
+    async function renderFibonacciChart(sig, silentRefresh = false) {
         const container = document.getElementById('modal-fibonacci-chart');
         const status = document.getElementById('modal-fibonacci-status');
         if (!container || !status) return;
 
         const requestId = ++fibonacciChartRequestId;
-        container.innerHTML = '<div class="fibonacci-chart-loading"><i class="fa-solid fa-spinner fa-spin"></i>&nbsp; يتم تحميل الشموع وحساب فيبوناتشي…</div>';
-        status.textContent = 'جارٍ التحليل…';
-        updateFibonacciMetrics('modal', null);
+        if (!silentRefresh) {
+            container.innerHTML = '<div class="fibonacci-chart-loading"><i class="fa-solid fa-spinner fa-spin"></i>&nbsp; يتم تحميل الشموع وحساب فيبوناتشي…</div>';
+            status.textContent = 'جارٍ التحليل…';
+            updateFibonacciMetrics('modal', null);
+        }
 
         const timeframeMap = { scalping: '15m', daytrade: '1h', swing: '4h', hedger: '1d', all: '1h' };
         const timeframe = sig.analysisTimeframe || timeframeMap[sig.timeframe] || '1h';
@@ -2149,10 +2151,12 @@ Evaluate objectively. Return ONLY valid JSON:
             attachFibonacciChartInteractions(container, candles);
             const direction = fib.direction === 'bullish' ? 'موجة صاعدة' : 'موجة هابطة';
             const proximity = fib.inGoldenZone ? 'داخل المنطقة الذهبية' : `الأقرب ${fib.nearestLevel}%`;
-            status.textContent = `${direction} • ${proximity} • ${timeframe.toUpperCase()}`;
-            status.className = `badge ${fib.confluence === 'NEUTRAL' ? 'badge-outline' : 'badge-gold'}`;
+            const liveTime = new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            status.textContent = `● مباشر ${liveTime} • ${direction} • ${proximity} • ${timeframe.toUpperCase()}`;
+            status.className = `badge fib-live-status ${fib.confluence === 'NEUTRAL' ? 'badge-outline' : 'badge-gold'}`;
         } catch (error) {
             if (requestId !== fibonacciChartRequestId) return;
+            if (silentRefresh) return;
             container.innerHTML = `<div class="fibonacci-chart-error"><i class="fa-solid fa-triangle-exclamation"></i>&nbsp; ${error.message}</div>`;
             updateFibonacciMetrics('modal', null);
             status.textContent = 'غير متوفر حاليًا';
@@ -2587,17 +2591,19 @@ Evaluate objectively. Return ONLY valid JSON:
         return clean;
     }
 
-    async function renderMainFibonacciChart(symbol, timeframe) {
+    async function renderMainFibonacciChart(symbol, timeframe, silentRefresh = false) {
         const container = document.getElementById('main-fibonacci-chart');
         const status = document.getElementById('main-fibonacci-status');
         if (!container || !status) return;
 
         const requestId = ++mainFibonacciRequestId;
         const assetKey = chartSymbolToAssetKey(symbol);
-        container.innerHTML = '<div class="fibonacci-chart-loading"><i class="fa-solid fa-spinner fa-spin"></i>&nbsp; يتم رسم مستويات فيبوناتشي الحية…</div>';
-        status.textContent = `${assetKey} • ${timeframe.toUpperCase()} • جارٍ التحليل`;
-        status.className = 'badge badge-outline';
-        updateFibonacciMetrics('main', null);
+        if (!silentRefresh) {
+            container.innerHTML = '<div class="fibonacci-chart-loading"><i class="fa-solid fa-spinner fa-spin"></i>&nbsp; يتم رسم مستويات فيبوناتشي الحية…</div>';
+            status.textContent = `${assetKey} • ${timeframe.toUpperCase()} • جارٍ التحليل`;
+            status.className = 'badge badge-outline';
+            updateFibonacciMetrics('main', null);
+        }
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/ohlcv?symbol=${encodeURIComponent(assetKey)}&timeframe=${encodeURIComponent(timeframe)}`);
@@ -2624,10 +2630,12 @@ Evaluate objectively. Return ONLY valid JSON:
             attachFibonacciChartInteractions(container, candles);
             const direction = fib.direction === 'bullish' ? 'صاعدة' : 'هابطة';
             const zone = fib.inGoldenZone ? 'السعر داخل المنطقة الذهبية' : `أقرب مستوى ${fib.nearestLevel}%`;
-            status.textContent = `${assetKey} • موجة ${direction} • ${zone} • ${timeframe.toUpperCase()}`;
-            status.className = `badge ${fib.confluence === 'NEUTRAL' ? 'badge-outline' : 'badge-gold'}`;
+            const liveTime = new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            status.textContent = `● مباشر ${liveTime} • ${assetKey} • موجة ${direction} • ${zone} • ${timeframe.toUpperCase()}`;
+            status.className = `badge fib-live-status ${fib.confluence === 'NEUTRAL' ? 'badge-outline' : 'badge-gold'}`;
         } catch (error) {
             if (requestId !== mainFibonacciRequestId) return;
+            if (silentRefresh) return;
             container.innerHTML = `<div class="fibonacci-chart-error"><i class="fa-solid fa-triangle-exclamation"></i>&nbsp; ${error.message}</div>`;
             updateFibonacciMetrics('main', null);
             status.textContent = `${assetKey} • فيبوناتشي غير متوفر حاليًا`;
@@ -2958,7 +2966,8 @@ Evaluate objectively. Return ONLY valid JSON:
     // 1-Second countdown clock updater for the UI timer
     setInterval(updateScannerStatusUI, 1000);
 
-    startStream();
+    // Synthetic random price movement is intentionally disabled. Charts and
+    // tickers must move only when a real connected market provider updates.
     updateSession();
     updateTicker();
     renderSignals();
@@ -2972,6 +2981,17 @@ Evaluate objectively. Return ONLY valid JSON:
         renderMainFibonacciChart('OANDA:XAUUSD', currentChartTfAi);
         syncChartAI('OANDA:XAUUSD', currentChartTfAi);
     }, 300);
+
+    // Refresh the still-forming candle without flashing or clearing the chart.
+    // The backend cache coalesces duplicate requests from the main and modal charts.
+    setInterval(() => {
+        if (document.hidden) return;
+        renderMainFibonacciChart(currentChartSymbol, currentChartTfAi, true);
+        const modal = document.getElementById('signal-modal');
+        if (modal?.classList.contains('active') && currentModalSignal) {
+            renderFibonacciChart(currentModalSignal, true);
+        }
+    }, 15000);
 
     document.querySelectorAll('.calendar-actions button[data-impact]').forEach(btn => {
         btn.addEventListener('click', e => {

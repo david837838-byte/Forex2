@@ -2460,6 +2460,26 @@ input:checked + .slider:before {
 
 .fibonacci-svg .fib-candle-latest .fib-candle-body {
     filter: saturate(1.18);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: fib-candle-tick 0.42s ease-out;
+}
+
+.fib-live-status {
+    border-color: rgba(0, 230, 118, 0.62) !important;
+    color: #69f0ae !important;
+    box-shadow: 0 0 0 rgba(0, 230, 118, 0);
+    animation: fib-live-pulse 2s ease-out infinite;
+}
+
+@keyframes fib-candle-tick {
+    0% { opacity: 0.58; transform: scaleX(0.78); filter: brightness(1.65); }
+    100% { opacity: 1; transform: scaleX(1); }
+}
+
+@keyframes fib-live-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
+    45% { box-shadow: 0 0 0 4px rgba(0, 230, 118, 0.08); }
 }
 
 .fibonacci-chart-tooltip {

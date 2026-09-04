@@ -50,12 +50,15 @@ CORS(app, resources={r'/api/*': {'origins': CORS_ORIGINS}}, max_age=86400)
 
 FETCH_INTERVAL = 6  # Fetch fresh TradingView prices every 6 seconds cleanly!
 MACRO_FETCH_INTERVAL = 60 # Fetch news every 60 seconds
+OHLCV_CACHE_TTL = 10  # Protect Yahoo from duplicate requests while keeping the active candle fresh.
 cache_lock = threading.RLock()
 
 price_cache = {
     'last_updated': 0.0,
     'data': {}
 }
+
+ohlcv_cache = {}
 
 news_cache = []
 calendar_cache = []
@@ -319,8 +322,20 @@ def get_prices():
 
 @app.route('/api/ohlcv', methods=['GET'])
 def get_ohlcv():
-    symbol = request.args.get('symbol', 'XAUUSD')
-    timeframe = request.args.get('timeframe', '1h')
+    symbol = request.args.get('symbol', 'XAUUSD').strip().upper()
+    timeframe = request.args.get('timeframe', '1h').strip().lower()
+    cache_key = (symbol, timeframe)
+
+    with cache_lock:
+        cached = ohlcv_cache.get(cache_key)
+        if cached and (time.time() - cached['timestamp']) < OHLCV_CACHE_TTL:
+            return jsonify({
+                'status': 'success',
+                'data': cached['data'],
+                'provider': 'Yahoo Finance OHLCV',
+                'cached': True,
+                'timestamp': cached['timestamp']
+            })
     
     yf_symbol = symbol
     if symbol == 'XAUUSD' or symbol == 'XAUUSD_OTC': yf_symbol = 'GC=F'
@@ -373,7 +388,16 @@ def get_ohlcv():
                 'close': row['Close'],
                 'volume': row['Volume']
             })
-        return jsonify({'status': 'success', 'data': candles})
+        fetched_at = time.time()
+        with cache_lock:
+            ohlcv_cache[cache_key] = {'timestamp': fetched_at, 'data': candles}
+        return jsonify({
+            'status': 'success',
+            'data': candles,
+            'provider': 'Yahoo Finance OHLCV',
+            'cached': False,
+            'timestamp': fetched_at
+        })
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
 
