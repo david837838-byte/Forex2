@@ -2440,6 +2440,28 @@ input:checked + .slider:before {
     user-select: none;
 }
 
+.fibonacci-svg text {
+    direction: ltr;
+    unicode-bidi: isolate;
+    paint-order: stroke;
+    stroke: rgba(7, 12, 21, 0.52);
+    stroke-width: 0.45px;
+}
+
+.fibonacci-svg .fib-candle-body,
+.fibonacci-svg .fib-candle-wick {
+    transition: filter 0.12s ease, opacity 0.12s ease;
+}
+
+.fibonacci-svg .fib-candle:hover .fib-candle-body,
+.fibonacci-svg .fib-candle:hover .fib-candle-wick {
+    filter: brightness(1.25);
+}
+
+.fibonacci-svg .fib-candle-latest .fib-candle-body {
+    filter: saturate(1.18);
+}
+
 .fibonacci-chart-tooltip {
     position: absolute;
     z-index: 5;

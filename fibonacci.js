@@ -190,18 +190,22 @@
         const y = price => padding.top + ((maxPrice - price) / (maxPrice - minPrice)) * plotHeight;
         const x = position => padding.left + ((position + 0.5) / visible.length) * plotWidth;
         const xForIndex = index => x(index - visibleStart);
-        const candleWidth = Math.max(2, Math.min(8, (plotWidth / visible.length) * 0.62));
+        const candleStep = plotWidth / visible.length;
+        const candleWidth = Math.max(3, Math.min(11, candleStep * 0.72));
         const format = price => {
             const decimals = Math.abs(price) < 10 ? 5 : Math.abs(price) < 1000 ? 3 : 2;
             return price.toFixed(decimals);
         };
 
         const parts = [
-            `<svg class="fibonacci-svg" data-visible-count="${visible.length}" data-plot-left="${padding.left}" data-plot-right="${padding.left + plotWidth}" data-plot-top="${padding.top}" data-plot-bottom="${padding.top + plotHeight}" viewBox="0 0 ${width} ${height}" role="img" aria-label="مخطط شموع تفاعلي مع مستويات فيبوناتشي" xmlns="http://www.w3.org/2000/svg">`,
+            `<svg class="fibonacci-svg" direction="ltr" style="direction:ltr" shape-rendering="geometricPrecision" data-visible-count="${visible.length}" data-plot-left="${padding.left}" data-plot-right="${padding.left + plotWidth}" data-plot-top="${padding.top}" data-plot-bottom="${padding.top + plotHeight}" viewBox="0 0 ${width} ${height}" role="img" aria-label="مخطط شموع تفاعلي مع مستويات فيبوناتشي" xmlns="http://www.w3.org/2000/svg">`,
             '<defs>',
             '<linearGradient id="fib-chart-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#101b2c"/><stop offset="100%" stop-color="#070c15"/></linearGradient>',
             '<linearGradient id="fib-golden-zone" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ffb300" stop-opacity="0.05"/><stop offset="55%" stop-color="#ffd740" stop-opacity="0.2"/><stop offset="100%" stop-color="#ff8f00" stop-opacity="0.08"/></linearGradient>',
+            '<linearGradient id="fib-up-candle" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2de2b5"/><stop offset="100%" stop-color="#00a982"/></linearGradient>',
+            '<linearGradient id="fib-down-candle" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff6b7f"/><stop offset="100%" stop-color="#d92d4f"/></linearGradient>',
             '<filter id="fib-glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>',
+            '<filter id="fib-last-candle-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.8" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>',
             `<clipPath id="fib-plot-clip"><rect x="${padding.left}" y="${padding.top}" width="${plotWidth}" height="${plotHeight}"/></clipPath>`,
             '</defs>',
             `<rect width="${width}" height="${height}" rx="8" fill="url(#fib-chart-bg)"/>`,
@@ -230,7 +234,8 @@
         visible.forEach((candle, position) => {
             const barHeight = (candle.volume / maxVolume) * volumeHeight;
             const bullish = candle.close >= candle.open;
-            parts.push(`<rect x="${x(position) - candleWidth / 2}" y="${padding.top + plotHeight - barHeight}" width="${candleWidth}" height="${barHeight}" fill="${bullish ? '#00e676' : '#ff5252'}"/>`);
+            const color = bullish ? '#16d9ad' : '#ff506d';
+            parts.push(`<rect x="${x(position) - candleWidth / 2}" y="${padding.top + plotHeight - barHeight}" width="${candleWidth}" height="${barHeight}" fill="${color}" rx="0.7"/>`);
         });
         parts.push('</g>');
 
@@ -238,10 +243,23 @@
         visible.forEach((candle, position) => {
             const candleX = x(position);
             const bullish = candle.close >= candle.open;
-            const color = bullish ? '#00e676' : '#ff5252';
+            const color = bullish ? '#16d9ad' : '#ff506d';
+            const borderColor = bullish ? '#57f0ca' : '#ff8b9d';
+            const fill = bullish ? 'url(#fib-up-candle)' : 'url(#fib-down-candle)';
             const bodyY = Math.min(y(candle.open), y(candle.close));
-            const bodyHeight = Math.max(1.2, Math.abs(y(candle.open) - y(candle.close)));
-            parts.push(`<g data-candle-position="${position}"><line x1="${candleX}" y1="${y(candle.high)}" x2="${candleX}" y2="${y(candle.low)}" stroke="${color}" stroke-width="1"/><rect x="${candleX - candleWidth / 2}" y="${bodyY}" width="${candleWidth}" height="${bodyHeight}" fill="${color}" rx="0.8"/></g>`);
+            const bodyHeight = Math.max(2.2, Math.abs(y(candle.open) - y(candle.close)));
+            const isDoji = Math.abs(candle.close - candle.open) <= Math.max((candle.high - candle.low) * 0.035, Number.EPSILON);
+            const isLatest = position === visible.length - 1;
+            parts.push(`<g class="fib-candle ${bullish ? 'fib-candle-up' : 'fib-candle-down'}${isLatest ? ' fib-candle-latest' : ''}" data-candle-position="${position}">`);
+            parts.push(`<line class="fib-candle-wick" x1="${candleX}" y1="${y(candle.high)}" x2="${candleX}" y2="${y(candle.low)}" stroke="${color}" stroke-width="1.25" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`);
+            if (isLatest) {
+                parts.push(`<rect x="${candleX - candleWidth / 2 - 2}" y="${bodyY - 2}" width="${candleWidth + 4}" height="${bodyHeight + 4}" fill="none" stroke="${borderColor}" stroke-width="1" rx="2" opacity="0.38" filter="url(#fib-last-candle-glow)"/>`);
+            }
+            parts.push(`<rect class="fib-candle-body" x="${candleX - candleWidth / 2}" y="${bodyY}" width="${candleWidth}" height="${bodyHeight}" fill="${fill}" stroke="${borderColor}" stroke-width="0.65" rx="1.15" vector-effect="non-scaling-stroke"/>`);
+            if (isDoji) {
+                parts.push(`<line class="fib-candle-doji" x1="${candleX - candleWidth * 0.62}" y1="${bodyY + bodyHeight / 2}" x2="${candleX + candleWidth * 0.62}" y2="${bodyY + bodyHeight / 2}" stroke="${borderColor}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`);
+            }
+            parts.push('</g>');
         });
         parts.push('</g>');
 

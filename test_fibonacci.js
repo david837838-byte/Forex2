@@ -78,5 +78,10 @@ assert.ok(svg.includes('data-crosshair="true"'));
 assert.ok(svg.includes('GOLDEN ZONE 50–61.8%'));
 assert.ok(svg.includes('SWING HIGH'));
 assert.ok(svg.includes('>NOW<'));
+assert.ok(svg.includes('direction="ltr"'));
+assert.ok(svg.includes('fib-up-candle'));
+assert.ok(svg.includes('fib-down-candle'));
+assert.ok(svg.includes('fib-candle-latest'));
+assert.ok(svg.includes('fib-candle-wick'));
 
 console.log('Fibonacci analysis tests passed.');
